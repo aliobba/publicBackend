@@ -14,7 +14,7 @@ public interface FormMapper {
 
     @Mapping(target = "creatorId", expression = "java(form.getCreator() != null ? form.getCreator().getId_user() : null)")
     @Mapping(target = "components", source = "components")
-    @Mapping(target = "assignedUserIds", expression = "java(form.getAssignedUsers().stream().map(com.ooredoo.report_bulider.user.User::getId_user).collect(java.util.stream.Collectors.toSet()))")
+    @Mapping(target = "assignedUserIds", expression = "java(form.getAssignedUsers().stream().map(com.ooredoo.report_builder.user.User::getId_user).collect(java.util.stream.Collectors.toSet()))")
     FormResponseDTO toFormResponseDTO(Form form);
 
     @Mapping(target = "creator", ignore = true)

@@ -4,6 +4,7 @@ import com.ooredoo.report_builder.controller.user.UserCreateRequest;
 import com.ooredoo.report_builder.controller.user.UserResponse;
 import com.ooredoo.report_builder.controller.user.UserUpdateRequest;
 import com.ooredoo.report_builder.entity.*;
+import com.ooredoo.report_builder.mapper.UserMapper;
 import com.ooredoo.report_builder.repo.*;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.repo.RoleRepository;
@@ -17,6 +18,7 @@ import com.ooredoo.report_builder.user.User;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +45,7 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public static final String ACTIVATION_URL = "//localhost:4200/activation-account";
 
@@ -51,7 +54,7 @@ public class UserService {
                      ZoneRepository zoneRepository, RegionRepository regionRepository, 
                      POSRepository posRepository, RoleRepository roleRepository, 
                      TokenRepository tokenRepository, EmailService emailService, 
-                     PasswordEncoder passwordEncoder) {
+                     PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.enterpriseRepository = enterpriseRepository;
@@ -63,6 +66,7 @@ public class UserService {
         this.tokenRepository = tokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
 
@@ -130,49 +134,35 @@ public class UserService {
         // Send Activation Email
         sendValidationEmail(user);
 
-        return convertToDto(user);
+        return userMapper.toResponse(user);
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findAll());
     }
     
     public List<UserResponse> getUsersByEnterprise(int enterpriseId) {
-        return userRepository.findByEnterpriseId(enterpriseId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findByEnterpriseId(enterpriseId));
     }
     
     public List<UserResponse> getUsersBySector(int sectorId) {
-        return userRepository.findBySectorId(sectorId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findBySectorId(sectorId));
     }
     
     public List<UserResponse> getUsersByZone(int zoneId) {
-        return userRepository.findByZoneId(zoneId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findByZoneId(zoneId));
     }
     
     public List<UserResponse> getUsersByRegion(int regionId) {
-        return userRepository.findByRegionId(regionId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findByRegionId(regionId));
     }
     
     public List<UserResponse> getUsersByPOS(int posId) {
-        return userRepository.findByPosId(posId).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findByPosId(posId));
     }
     
     public List<UserResponse> getUsersByUserType(UserType userType) {
-        return userRepository.findByUserType(userType).stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return userMapper.toResponseList(userRepository.findByUserType(userType));
     }
 
     public UserResponse updateUser(Integer userId, UserUpdateRequest request) {
@@ -222,7 +212,7 @@ public class UserService {
             user.setUserType(request.getUserType());
         }
 
-        return convertToDto(userRepository.save(user));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     public void deleteUser(Integer userId) {

@@ -18,10 +18,10 @@ import java.util.Set;
 public interface EnterpriseMapper {
 
     // Entity to Response mapping
-    @Mapping(target = "enterpriseAdmin", source = "enterpriseAdmin", qualifiedByName = "userToUserSummaryDTO")
-    @Mapping(target = "users", source = "users", qualifiedByName = "usersToUserSummaryDTOs")
-    @Mapping(target = "pointsOfSale", source = "pointsOfSale", qualifiedByName = "posesToPOSSummaryDTOs")
-    @Mapping(target = "sectors", source = "sectors", qualifiedByName = "sectorsToSectorSummaryDTOs")
+    @Mapping(target = "enterpriseAdmin", expression = "java(userToUserSummaryDTO(enterprise.getEnterpriseAdmin()))")
+    @Mapping(target = "users", expression = "java(enterprise.getUsers() != null ? enterprise.getUsers().stream().map(this::userToUserSummaryDTO).collect(java.util.stream.Collectors.toSet()) : null)")
+    @Mapping(target = "pointsOfSale", expression = "java(enterprise.getPointsOfSale() != null ? enterprise.getPointsOfSale().stream().map(this::posToSummaryDTO).collect(java.util.stream.Collectors.toSet()) : null)")
+    @Mapping(target = "sectors", expression = "java(enterprise.getSectors() != null ? enterprise.getSectors().stream().map(this::sectorToSummaryDTO).collect(java.util.stream.Collectors.toSet()) : null)")
     EnterpriseResponse toResponse(Enterprise enterprise);
     
     // CreateRequest to Entity mapping

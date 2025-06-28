@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class AnimatorRoleService {
+public class  AnimatorRoleService {
 
     private final AnimatorRoleRepository animatorRoleRepository;
     private final RoleActionRepository roleActionRepository;
