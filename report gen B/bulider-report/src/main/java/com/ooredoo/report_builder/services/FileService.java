@@ -47,7 +47,7 @@ public class FileService {
         uploadedFile.setOriginalFileName(originalFileName);
         uploadedFile.setStoredFileName(storedFileName);
         uploadedFile.setFileType(file.getContentType());
-        uploadedFile.setFileSize(file.getSize());
+        uploadedFile.setFileSize((int)file.getSize());
         uploadedFile.setFilePath(filePath.toString());
 
         UploadedFiles savedFile = fileRepository.save(uploadedFile);
