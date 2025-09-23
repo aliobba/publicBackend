@@ -1,0 +1,60 @@
+package com.ooredoo.report_builder.repo;
+
+import com.ooredoo.report_builder.user.User;
+import com.ooredoo.report_builder.enums.UserType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository <User, Integer> {
+
+    //List<User> findAvailableHeads(UserType userType);
+    List<User> findByUserType(UserType userType);
+    Optional<User> findByEmail(String email);
+    List<User> findByEnabledTrue();
+
+    // Find users available to be heads (not already assigned as heads)
+    @Query("SELECT u FROM User u WHERE u.userType = :userType AND u.id NOT IN " +
+            "(SELECT s.headOfSector.id FROM Sector s WHERE s.headOfSector IS NOT NULL) AND " +
+            "u.id NOT IN (SELECT z.headOfZone.id FROM Zone z WHERE z.headOfZone IS NOT NULL) AND " +
+            "u.id NOT IN (SELECT r.headOfRegion.id FROM Region r WHERE r.headOfRegion IS NOT NULL) AND " +
+            "u.id NOT IN (SELECT p.headOfPOS.id FROM POS p WHERE p.headOfPOS IS NOT NULL)")
+    List<User> findAvailableHeads(@Param("userType") UserType userType);
+
+    List<User> findByEnterpriseId(Integer enterpriseId);
+
+    //List<User> findByPosId(Integer posId);
+
+
+
+
+
+
+
+
+    // --- New for finding all under a Zone (including Regions) ---
+  /*  @Query("""
+        SELECT DISTINCT u FROM User u
+        LEFT JOIN u.zone z
+        LEFT JOIN z.regions r
+        WHERE z.id = :zoneId OR r.id IN (
+            SELECT r2.id FROM Region r2 WHERE r2.zone.id = :zoneId
+        )
+    """)
+    List<User> findAllUsersInZoneWithRegions(@Param("zoneId") Integer zoneId);
+
+    // --- New for finding all under a Sector (including Zones & Regions) ---
+    @Query("""
+        SELECT DISTINCT u FROM User u
+        LEFT JOIN u.sector s
+        LEFT JOIN s.zones z
+        LEFT JOIN z.regions r
+        WHERE s.id = :sectorId
+           OR z.id IN (SELECT z2.id FROM Zone z2 WHERE z2.sector.id = :sectorId)
+           OR r.id IN (SELECT r2.id FROM Region r2 WHERE r2.zone.sector.id = :sectorId)
+    """)
+    List<User> findAllUsersInSectorFull(@Param("sectorId") Integer sectorId);*/
+}
