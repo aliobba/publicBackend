@@ -1,0 +1,19 @@
+package com.ooredoo.report_builder.dto.response;
+
+import lombok.*;
+
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ZoneResponseDTO {
+    private Integer id;
+    private String name;
+    private Integer sectorId;
+    private Integer managerId;
+    private Set<Integer> userIds;
+    private Set<Integer> regionIds;
+}
