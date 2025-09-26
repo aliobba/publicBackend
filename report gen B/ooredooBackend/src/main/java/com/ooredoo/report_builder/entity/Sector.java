@@ -1,6 +1,5 @@
 package com.ooredoo.report_builder.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +22,7 @@ public class Sector {
     private String name;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_headOfSector")
+    @JoinColumn(name = "id_head_of_sector")
     private User headOfSector;
 
     @OneToMany(mappedBy = "sector", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -36,7 +35,7 @@ public class Sector {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public Sector(Integer id, String name,  User headOfSector, Set<Zone> zones, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Sector(Integer id, String name, User headOfSector, Set<Zone> zones, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.headOfSector = headOfSector;
@@ -145,7 +144,7 @@ public class Sector {
         }
 
         public Sector build() {
-            return new Sector(this.id, this.name,  this.headOfSector, this.zones, this.createdAt, this.updatedAt);
+            return new Sector(this.id, this.name, this.headOfSector, this.zones, this.createdAt, this.updatedAt);
         }
 
         public String toString() {

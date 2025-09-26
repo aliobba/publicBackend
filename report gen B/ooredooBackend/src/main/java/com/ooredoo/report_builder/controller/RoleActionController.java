@@ -36,7 +36,7 @@ public class RoleActionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("/createRoleAction")
     public ResponseEntity<RoleAction> createRoleAction(@RequestBody RoleAction roleAction) {
         try {
             if (roleActionService.existsByActionKey(roleAction.getActionKey())) {
@@ -49,7 +49,7 @@ public class RoleActionController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateRoleAction/{id}")
     public ResponseEntity<RoleAction> updateRoleAction(@PathVariable Integer id, @RequestBody RoleAction roleAction) {
         try {
             if (!roleActionService.findById(id).isPresent()) {
@@ -63,7 +63,7 @@ public class RoleActionController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteRoleAction/{id}")
     public ResponseEntity<Void> deleteRoleAction(@PathVariable Integer id) {
         try {
             if (!roleActionService.findById(id).isPresent()) {

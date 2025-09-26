@@ -15,7 +15,7 @@ public class UploadedFiles {
     private Integer fileSize;
     private String filePath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_value_id")
     private SubmissionValue submissionValue;
 

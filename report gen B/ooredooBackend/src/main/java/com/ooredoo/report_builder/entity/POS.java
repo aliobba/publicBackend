@@ -1,6 +1,5 @@
 package com.ooredoo.report_builder.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
@@ -25,7 +24,7 @@ public class POS {
     private String name;
     // POS Manager
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_HeadOfPOS")
+    @JoinColumn(name = "id_head_OfPOS")
     private User headOfPOS;
 
     // Region this POS belongs to
@@ -34,8 +33,8 @@ public class POS {
     @JsonIgnoreProperties({"posInRegion"})
     private Region region;
 
-    /*@OneToMany(mappedBy = "pos")
-    private Set<User> users = new HashSet<>();*/
+    @OneToMany(mappedBy = "pos")
+    private Set<User> users = new HashSet<>();
 
     // Audit fields
     @CreatedDate

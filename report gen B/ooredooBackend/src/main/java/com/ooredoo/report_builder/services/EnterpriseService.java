@@ -2,6 +2,7 @@ package com.ooredoo.report_builder.services;
 
 import com.ooredoo.report_builder.dto.response.EnterpriseResponseDTO;
 import com.ooredoo.report_builder.entity.Enterprise;
+import com.ooredoo.report_builder.entity.Sector;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.EnterpriseRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -25,6 +27,8 @@ public class EnterpriseService {
     private EnterpriseRepository enterpriseRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService   userService;
 
     public EnterpriseService() {
     }
@@ -48,10 +52,11 @@ public class EnterpriseService {
         if (enterprise.getManager().getId() != null) {
             User manager = userRepository.findById(enterprise.getManager().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
+
             if (manager.getUserType().equals(UserType.USER_ADMIN)){
                 manager.setEnterprise(enterprise);
                 enterprise.setManager(manager);
-                enterprise.setUsersInEnterprise((Set<User>) manager);
+                enterprise.getUsersInEnterprise().add(manager);
             }
         }
         return enterpriseRepository.save(enterprise);
@@ -74,7 +79,11 @@ public class EnterpriseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Enterprise not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+        if(enterprise.getUsersInEnterprise().contains(user)){
+         throw new ResourceNotFoundException("user already assigned to Enterprise");
+        }
+        user.setEnterprise(enterprise);
+        userRepository.save(user);
         enterprise.getUsersInEnterprise().add(user);
         return enterpriseRepository.save(enterprise);
     }
@@ -85,9 +94,15 @@ public class EnterpriseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Enterprise not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
+        if(enterprise.getUsersInEnterprise().contains(user)){
+            throw new ResourceNotFoundException("user already assigned to Enterprise");
+        }
+        userService.unassignUserFromEnterprise(userId,enterpriseId);
         enterprise.getUsersInEnterprise().remove(user);
         return enterpriseRepository.save(enterprise);
+    }
+    public List<User> getUserInEnterprise(Integer enterpriseId) {
+      return enterpriseRepository.findAllUsersInEnterpriseFull(enterpriseId);
     }
 /*
     private final EnterpriseRepository enterpriseRepository;

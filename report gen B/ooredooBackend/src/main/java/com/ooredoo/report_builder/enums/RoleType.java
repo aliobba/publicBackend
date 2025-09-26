@@ -2,7 +2,7 @@ package com.ooredoo.report_builder.enums;
 
 public enum RoleType {
     MAIN_ADMIN("MAIN_ADMIN"),
-    ENTREPRISE_ADMIN("ENTREPRISE_ADMIN"),
+    ENTERPRISE_ADMIN("ENTERPRISE_ADMIN"),
     USER("USER");
 
     private final String value;

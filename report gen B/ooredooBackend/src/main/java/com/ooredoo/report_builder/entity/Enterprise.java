@@ -33,7 +33,7 @@ public class Enterprise {
     private Set<User> usersInEnterprise = new HashSet<>();
 
     // enterprise manager (optional)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private User manager;
 
@@ -48,7 +48,6 @@ public class Enterprise {
     private LocalDateTime updatedAt;
 
 
-
     public Enterprise(Integer id, String name, String logoUrl, String primaryColor, String secondaryColor, Set<User> usersInEnterprise, User manager, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
@@ -57,6 +56,18 @@ public class Enterprise {
         this.secondaryColor = secondaryColor;
         this.usersInEnterprise = usersInEnterprise;
         this.manager = manager;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Enterprise(Integer id, String name, String logoUrl, String primaryColor, String secondaryColor, Set<User> usersInEnterprise, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.logoUrl = logoUrl;
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+        this.usersInEnterprise = usersInEnterprise;
+        //this.manager = manager;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -96,7 +107,6 @@ public class Enterprise {
         return this.manager;
     }
 
-
     public LocalDateTime getCreatedAt() {
         return this.createdAt;
     }
@@ -125,6 +135,7 @@ public class Enterprise {
         this.secondaryColor = secondaryColor;
     }
 
+    @JsonIgnore
     public void setUsersInEnterprise(Set<User> usersInEnterprise) {
         this.usersInEnterprise = usersInEnterprise;
     }
@@ -132,7 +143,6 @@ public class Enterprise {
     public void setManager(User manager) {
         this.manager = manager;
     }
-
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
@@ -142,6 +152,7 @@ public class Enterprise {
         this.updatedAt = updatedAt;
     }
 
+
     public static class EnterpriseBuilder {
         private Integer id;
         private String name;
@@ -149,7 +160,7 @@ public class Enterprise {
         private String primaryColor;
         private String secondaryColor;
         private Set<User> usersInEnterprise;
-        private User manager;
+        //private User manager;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -186,11 +197,10 @@ public class Enterprise {
             return this;
         }
 
-        public EnterpriseBuilder manager(User manager) {
+       /* public EnterpriseBuilder manager(User manager) {
             this.manager = manager;
             return this;
-        }
-
+        }*/
 
 
         public EnterpriseBuilder createdAt(LocalDateTime createdAt) {
@@ -204,7 +214,7 @@ public class Enterprise {
         }
 
         public Enterprise build() {
-            return new Enterprise(this.id, this.name, this.logoUrl, this.primaryColor, this.secondaryColor, this.usersInEnterprise, this.manager,  this.createdAt, this.updatedAt);
+            return new Enterprise(this.id, this.name, this.logoUrl, this.primaryColor, this.secondaryColor, this.usersInEnterprise, this.createdAt, this.updatedAt);
         }
 
         public String toString() {

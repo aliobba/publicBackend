@@ -12,11 +12,11 @@ public class SubmissionValue {
 
     private String value;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_id")
     private FormSubmission submission;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
     private FormComponent component;
 

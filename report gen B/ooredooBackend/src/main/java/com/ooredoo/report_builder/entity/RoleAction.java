@@ -58,34 +58,6 @@ public class RoleAction {
         return new RoleActionBuilder();
     }
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getActionKey() {
-        return this.actionKey;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public String getEndpointPattern() {
-        return this.endpointPattern;
-    }
-
-    public Set<Role> getRoles() {
-        return this.roles;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return this.updatedAt;
-    }
-
     public void setId(Integer id) {
         this.id = id;
     }
@@ -113,6 +85,34 @@ public class RoleAction {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getActionKey() {
+        return this.actionKey;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getEndpointPattern() {
+        return this.endpointPattern;
+    }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
     }
 
     public static class RoleActionBuilder {

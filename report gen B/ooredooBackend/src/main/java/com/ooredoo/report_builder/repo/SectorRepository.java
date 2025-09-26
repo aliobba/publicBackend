@@ -1,6 +1,7 @@
 package com.ooredoo.report_builder.repo;
 
 import com.ooredoo.report_builder.entity.Sector;
+import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,9 +15,9 @@ import java.util.Optional;
 public interface SectorRepository extends JpaRepository<Sector, Integer> {
     Optional<Sector> findByName(String name);
     boolean existsByName(String name);
-    //List<Sector> findByEnterpriseId(Integer enterpriseId);
     List<Sector> findByHeadOfSectorIsNull();
     boolean existsByHeadOfSectorId(Integer userId);
+
 
     //List<Sector> findByHeadOfSectorIsNull();
 
@@ -24,7 +25,7 @@ public interface SectorRepository extends JpaRepository<Sector, Integer> {
 
     // get manager
     // Fetch all users in a sector (direct + zones + regions)
-  /*  @Query("""
+  /* @Query("""
         SELECT DISTINCT u FROM User u
         LEFT JOIN u.sector s
         LEFT JOIN u.zone z

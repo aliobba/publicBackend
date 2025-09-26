@@ -1,6 +1,5 @@
 package com.ooredoo.report_builder.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
@@ -24,7 +23,7 @@ public class Region {
     private String name;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_HeadOfRegion")
+    @JoinColumn(name = "id_head_of_region")
     private User headOfRegion;
 
     @CreatedDate
@@ -36,15 +35,12 @@ public class Region {
 
 
     // POS inside this region
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "region_POS",
-            joinColumns = @JoinColumn(name = "region_id"),
-            inverseJoinColumns = @JoinColumn(name = "pos_id"))
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<POS> posInRegion = new HashSet<>();
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zone_id")
-    //@JsonIgnore
     @JsonIgnoreProperties({"regions"})
     private Zone zone;
 
@@ -117,6 +113,7 @@ public class Region {
         this.posInRegion = posInRegion;
     }
 
+    @JsonIgnoreProperties({"regions"})
     public void setZone(Zone zone) {
         this.zone = zone;
     }

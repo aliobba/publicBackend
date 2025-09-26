@@ -1,6 +1,8 @@
 package com.ooredoo.report_builder.controller;
 
+import com.ooredoo.report_builder.entity.Region;
 import com.ooredoo.report_builder.entity.Zone;
+import com.ooredoo.report_builder.services.RegionService;
 import com.ooredoo.report_builder.services.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ public class ZoneController {
 
     @Autowired
     private ZoneService zoneService;
+    @Autowired
+    private RegionService regionService;
 
     @GetMapping
     public ResponseEntity<List<Zone>> getAllZones() {
@@ -29,9 +33,14 @@ public class ZoneController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/sector/{sectorId}")
+    @GetMapping("/zoneBySector/sectors/{sectorId}")
     public ResponseEntity<List<Zone>> getZonesBySectorId(@PathVariable Integer sectorId) {
         return ResponseEntity.ok(zoneService.findBySectorId(sectorId));
+    }
+
+    @GetMapping("/regionByZone/{zoneId}")
+    public ResponseEntity<List<Region>> getRegionsByZoneId(@PathVariable Integer zoneId) {
+        return ResponseEntity.ok(regionService.findByZoneId(zoneId));
     }
 
     /*@GetMapping("/without-head")
@@ -51,7 +60,7 @@ public class ZoneController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateZone/{id}")
     public ResponseEntity<Zone> updateZone(@PathVariable Integer id, @RequestBody Zone zone) {
         try {
             if (!zoneService.findById(id).isPresent()) {
@@ -67,7 +76,7 @@ public class ZoneController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteZone/{id}")
     public ResponseEntity<Void> deleteZone(@PathVariable Integer id) {
         try {
             if (!zoneService.findById(id).isPresent()) {

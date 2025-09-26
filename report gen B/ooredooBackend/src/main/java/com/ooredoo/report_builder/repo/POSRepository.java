@@ -13,7 +13,6 @@ public interface POSRepository extends JpaRepository<POS, Integer> {
     boolean existsByName(String name);
     List<POS> findByRegionId(Integer regionId);
     boolean existsByHeadOfPOSId(Integer userId);
-
     List<POS> findByHeadOfPOSIsNull();
     Optional<POS> findByHeadOfPOSId(Integer headOfPOSId); // head of POS
     //List<POS> findByUsers_Id(Integer userId);

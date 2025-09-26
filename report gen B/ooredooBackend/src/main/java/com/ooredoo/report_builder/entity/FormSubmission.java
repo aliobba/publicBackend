@@ -18,11 +18,11 @@ public class FormSubmission {
 
     private LocalDateTime submittedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
     private Form form;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submitted_by_id")
     private User submittedBy;
 

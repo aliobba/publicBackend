@@ -1,6 +1,9 @@
 package com.ooredoo.report_builder.controller;
 
+import com.ooredoo.report_builder.entity.POS;
 import com.ooredoo.report_builder.entity.Region;
+import com.ooredoo.report_builder.repo.POSRepository;
+import com.ooredoo.report_builder.services.PosService;
 import com.ooredoo.report_builder.services.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,9 @@ public class RegionController {
 
     @Autowired
     private RegionService regionService;
+    @Autowired
+    private PosService posService;
+
 
     @GetMapping
     public ResponseEntity<List<Region>> getAllRegions() {
@@ -29,9 +35,13 @@ public class RegionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/zone/{zoneId}")
+    @GetMapping("/regionByZone/zones/{zoneId}")
     public ResponseEntity<List<Region>> getRegionsByZoneId(@PathVariable Integer zoneId) {
         return ResponseEntity.ok(regionService.findByZoneId(zoneId));
+    }
+    @GetMapping("/posByRegion/{regionId}")
+    public ResponseEntity<List<POS>> getPOSByRegionId(@PathVariable Integer regionId) {
+        return ResponseEntity.ok(posService.findByRegionId(regionId));
     }
 
     /*@GetMapping("/without-head")
@@ -51,7 +61,7 @@ public class RegionController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateRegion/{id}")
     public ResponseEntity<Region> updateRegion(@PathVariable Integer id, @RequestBody Region region) {
         try {
             if (!regionService.findById(id).isPresent()) {
@@ -67,7 +77,7 @@ public class RegionController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteRegion/{id}")
     public ResponseEntity<Void> deleteRegion(@PathVariable Integer id) {
         try {
             if (!regionService.findById(id).isPresent()) {

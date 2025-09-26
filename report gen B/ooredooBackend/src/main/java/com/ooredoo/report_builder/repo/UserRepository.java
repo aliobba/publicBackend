@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository <User, Integer> {
 
     List<User> findByEnterpriseId(Integer enterpriseId);
 
-    //List<User> findByPosId(Integer posId);
+    List<User> findByPosId(Integer posId);
 
 
 
@@ -45,16 +45,16 @@ public interface UserRepository extends JpaRepository <User, Integer> {
         )
     """)
     List<User> findAllUsersInZoneWithRegions(@Param("zoneId") Integer zoneId);
-
+*/
     // --- New for finding all under a Sector (including Zones & Regions) ---
     @Query("""
-        SELECT DISTINCT u FROM User u
-        LEFT JOIN u.sector s
-        LEFT JOIN s.zones z
-        LEFT JOIN z.regions r
-        WHERE s.id = :sectorId
-           OR z.id IN (SELECT z2.id FROM Zone z2 WHERE z2.sector.id = :sectorId)
-           OR r.id IN (SELECT r2.id FROM Region r2 WHERE r2.zone.sector.id = :sectorId)
-    """)
-    List<User> findAllUsersInSectorFull(@Param("sectorId") Integer sectorId);*/
+    SELECT DISTINCT u FROM User u
+    JOIN u.pos p
+    JOIN p.region r
+    JOIN r.zone z
+    JOIN z.sector s
+    WHERE s.id = :sectorId
+""")
+    List<User> findAllUsersInSectorFull(@Param("sectorId") Integer sectorId);
+
 }

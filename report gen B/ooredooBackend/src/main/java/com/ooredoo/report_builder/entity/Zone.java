@@ -1,6 +1,5 @@
 package com.ooredoo.report_builder.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
@@ -31,7 +30,7 @@ public class Zone {
     private Sector sector;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_headOfZone")
+    @JoinColumn(name = "id_head_of_zone")
     private User headOfZone;
 
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -97,6 +96,7 @@ public class Zone {
         this.name = name;
     }
 
+    @JsonIgnoreProperties({"zones"})
     public void setSector(Sector sector) {
         this.sector = sector;
     }

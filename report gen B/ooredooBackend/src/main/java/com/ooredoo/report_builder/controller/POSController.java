@@ -29,11 +29,12 @@ public class POSController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/region/{regionId}")
+    @GetMapping("/posByRegion/region/{regionId}")
     public ResponseEntity<List<POS>> getPOSByRegionId(@PathVariable Integer regionId) {
         return ResponseEntity.ok(posService.findByRegionId(regionId));
     }
-    @GetMapping("/users/")
+
+    @GetMapping("/users/{regionId}")
     public ResponseEntity<Optional<POS>> getPOSByHeadId(@PathVariable Integer headOfPOSId) {
         return ResponseEntity.ok(posService.findByHeadOfPOSId(headOfPOSId));
     }
@@ -55,7 +56,7 @@ public class POSController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updatePOS/{id}")
     public ResponseEntity<POS> updatePOS(@PathVariable Integer id, @RequestBody POS pos) {
         try {
             if (!posService.findById(id).isPresent()) {

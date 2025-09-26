@@ -1,7 +1,11 @@
 package com.ooredoo.report_builder.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ooredoo.report_builder.entity.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ooredoo.report_builder.entity.Enterprise;
+import com.ooredoo.report_builder.entity.Form;
+import com.ooredoo.report_builder.entity.FormSubmission;
+import com.ooredoo.report_builder.entity.POS;
 import com.ooredoo.report_builder.enums.UserType;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -60,13 +64,17 @@ public class User implements UserDetails, Principal {
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
-   // Optionally user can belong at different hierarchy levels
+    // Optionally user can belong at different hierarchy levels
     // A user can be directly assigned to an enterprise/sector/zone/region
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usersInEnterprise")
-    @JsonIgnore
+    @JoinColumn(name = "enterprise_id")
+    @JsonIgnoreProperties({"users", "manager"})
     private Enterprise enterprise;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pos_id")
+    @JsonIgnoreProperties({"users"})
+    private POS pos;
 
     // Forms directly assigned to user (many-to-many)
     @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.LAZY)
@@ -77,7 +85,7 @@ public class User implements UserDetails, Principal {
     @Column(name = "user_type")
     private UserType userType;
 
-    public User(Integer id, String firstname, String lastname, LocalDate dateOfBirth, String password, String email, String pinHash, boolean enabled, boolean accountLocked, Set<Form> createdForms, List<FormSubmission> submissions, LocalDateTime createdAt, LocalDateTime updatedAt, Enterprise enterprise, Set<Form> assignedForms, UserType userType) {
+    public User(Integer id, String firstname, String lastname, LocalDate dateOfBirth, String password, String email, String pinHash, boolean enabled, boolean accountLocked, List<Role> roles, Set<Form> createdForms, List<FormSubmission> submissions, LocalDateTime createdAt, LocalDateTime updatedAt, Enterprise enterprise, POS pos, Set<Form> assignedForms, UserType userType) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -87,11 +95,13 @@ public class User implements UserDetails, Principal {
         this.pinHash = pinHash;
         this.enabled = enabled;
         this.accountLocked = accountLocked;
+        this.roles = roles;
         this.createdForms = createdForms;
         this.submissions = submissions;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.enterprise = enterprise;
+        this.pos = pos;
         this.assignedForms = assignedForms;
         this.userType = userType;
     }
@@ -157,6 +167,7 @@ public class User implements UserDetails, Principal {
                 .anyMatch(role -> role.getName().equals(roleName));
     }
 
+
     public Integer getId() {
         return this.id;
     }
@@ -209,6 +220,9 @@ public class User implements UserDetails, Principal {
         return this.enterprise;
     }
 
+    public POS getPos() {
+        return this.pos;
+    }
 
     public Set<Form> getAssignedForms() {
         return this.assignedForms;
@@ -280,6 +294,10 @@ public class User implements UserDetails, Principal {
         this.enterprise = enterprise;
     }
 
+    @JsonIgnoreProperties({"users"})
+    public void setPos(POS pos) {
+        this.pos = pos;
+    }
 
     public void setAssignedForms(Set<Form> assignedForms) {
         this.assignedForms = assignedForms;
@@ -299,12 +317,13 @@ public class User implements UserDetails, Principal {
         private String pinHash;
         private boolean enabled;
         private boolean accountLocked;
-        //private List<Role> roles;
+        private List<Role> roles;
         private Set<Form> createdForms;
         private List<FormSubmission> submissions;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private Enterprise enterprise;
+        private POS pos;
         private Set<Form> assignedForms;
         private UserType userType;
 
@@ -388,6 +407,11 @@ public class User implements UserDetails, Principal {
             return this;
         }
 
+        @JsonIgnoreProperties({"users"})
+        public UserBuilder pos(POS pos) {
+            this.pos = pos;
+            return this;
+        }
 
         public UserBuilder assignedForms(Set<Form> assignedForms) {
             this.assignedForms = assignedForms;
@@ -400,11 +424,11 @@ public class User implements UserDetails, Principal {
         }
 
         public User build() {
-            return new User(this.id, this.firstname, this.lastname, this.dateOfBirth, this.password, this.email, this.pinHash, this.enabled, this.accountLocked, this.createdForms, this.submissions, this.createdAt, this.updatedAt, this.enterprise, this.assignedForms, this.userType);
+            return new User(this.id, this.firstname, this.lastname, this.dateOfBirth, this.password, this.email, this.pinHash, this.enabled, this.accountLocked, this.roles, this.createdForms, this.submissions, this.createdAt, this.updatedAt, this.enterprise, this.pos, this.assignedForms, this.userType);
         }
 
         public String toString() {
-            return "User.UserBuilder(id=" + this.id + ", firstname=" + this.firstname + ", lastname=" + this.lastname + ", dateOfBirth=" + this.dateOfBirth + ", password=" + this.password + ", email=" + this.email + ", pinHash=" + this.pinHash + ", enabled=" + this.enabled + ", accountLocked=" + this.accountLocked  + ", createdForms=" + this.createdForms + ", submissions=" + this.submissions + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", enterprise=" + this.enterprise.getId() + ", assignedForms=" + this.assignedForms + ", userType=" + this.userType + ")";
+            return "User.UserBuilder(id=" + this.id + ", firstname=" + this.firstname + ", lastname=" + this.lastname + ", dateOfBirth=" + this.dateOfBirth + ", password=" + this.password + ", email=" + this.email + ", pinHash=" + this.pinHash + ", enabled=" + this.enabled + ", accountLocked=" + this.accountLocked + ", createdForms=" + this.createdForms + ", submissions=" + this.submissions + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", enterprise=" + this.enterprise + ", pos=" + this.pos + ", assignedForms=" + this.assignedForms + ", userType=" + this.userType + ")";
         }
     }
 }

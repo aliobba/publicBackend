@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +73,9 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
+    public List<User> findAllFromSector(Integer sectorId) {
+        return userRepository.findAllUsersInSectorFull(sectorId);
+    }
 
     public Optional<User> findById(Integer id) {
         return userRepository.findById(id);
@@ -108,7 +112,9 @@ public class UserService {
                 .password(passwordEncoder.encode(user.getPassword()))
                 .pinHash(passwordEncoder.encode(user.getPinHash()))
                 .dateOfBirth(user.getDateOfBirth())
-                .userType(user.getUserType())
+                .userType(user.getUserType() == null || user.getUserType().toString().isEmpty()
+                        ? UserType.SIMPLE_USER
+                        : user.getUserType() )
                 .build();
         userRepository.save(newUser);
         return newUser;
@@ -202,6 +208,80 @@ public class UserService {
         }
     }
 
+    public User assignRoleToUser(Integer userId, Integer roleId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
+
+        // Initialize roles list if null
+        if (user.getRoles() == null) {
+            user.setRoles(new ArrayList<>());
+        }
+
+        // Add role if not already assigned
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+        }
+        return userRepository.save(user);
+    }
+
+    public User assignRolesToUser(Integer userId, List<Integer> roleIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        List<Role> roles = roleRepository.findAllById(roleIds);
+        if (roles.size() != roleIds.size()) {
+            throw new IllegalArgumentException("One or more roles not found");
+        }
+
+        user.setRoles(roles);
+
+        return userRepository.save(user);
+    }
+    public User removeRoleFromUser(Integer userId, Integer roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
+
+        if (user.getRoles() != null) {
+            user.getRoles().remove(role);
+        }
+
+        return userRepository.save(user);
+    }
+
+    // Method 5: Remove multiple roles from user
+    public User removeRolesFromUser(Integer userId, List<Integer> roleIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        List<Role> rolesToRemove = roleRepository.findAllById(roleIds);
+        if (rolesToRemove.size() != roleIds.size()) {
+            throw new IllegalArgumentException("One or more roles not found");
+        }
+
+        if (user.getRoles() != null) {
+            user.getRoles().removeAll(rolesToRemove);
+        }
+
+        return userRepository.save(user);
+    }
+
+    // Method 6: Remove all roles from user
+    public User removeAllRolesFromUser(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (user.getRoles() != null) {
+            user.getRoles().clear();
+        }
+
+        return userRepository.save(user);
+    }
+
 /*
     // Create User
     public UserResponseDTO createUser(UserRequest request) throws MessagingException {
@@ -267,6 +347,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Enterprise not found"));
+        if(enterprise.getUsersInEnterprise().contains(user)){
+            throw new ResourceNotFoundException("user already assigned to Enterprise");
+        }
         enterprise.getUsersInEnterprise().add(user);
         enterpriseRepository.save(enterprise);
     }
@@ -276,8 +359,15 @@ public class UserService {
     public void unassignUserFromEnterprise(Integer userId, Integer enterpriseId) {
         Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Enterprise not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         enterprise.getUsersInEnterprise().removeIf(u -> u.getId().equals(userId));
         enterpriseRepository.save(enterprise);
+    }
+
+    @Transactional
+    public List<User> getUsersByPOS(Integer posId) {
+        return userRepository.findByPosId(posId);
     }
 
   /*  // ✅ Assign User to Sector
@@ -413,11 +503,11 @@ public class UserService {
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new RuntimeException("Invalid OTP"));
 
         if (LocalDateTime.now().isAfter(savedToken.getExpirationAt())) {
             sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Token expired. New token has been sent to your email.");
+            throw new RuntimeException("OPT expired. New OTP has been sent to your email.");
         }
 
         User user = userRepository.findById(savedToken.getUser().getId())

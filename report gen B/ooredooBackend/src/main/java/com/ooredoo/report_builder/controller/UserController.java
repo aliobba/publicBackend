@@ -1,8 +1,5 @@
 package com.ooredoo.report_builder.controller;
 
-import com.ooredoo.report_builder.controller.user.UserCreateRequest;
-import com.ooredoo.report_builder.controller.user.UserResponse;
-import com.ooredoo.report_builder.controller.user.UserUpdateRequest;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.services.UserService;
 import com.ooredoo.report_builder.user.User;
@@ -11,7 +8,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +30,12 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
+
+    @GetMapping("/sectors/{sectorId}")
+    public ResponseEntity<List<User>> getAllUsersInSector(@PathVariable Integer sectorId) {
+        return ResponseEntity.ok(userService.findAllFromSector(sectorId));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Integer id) {
@@ -66,13 +68,14 @@ public class UserController {
             userService.save(user);
             return ResponseEntity.accepted().build();
         } catch (Exception e) {
-            System.out.println("ena exeption 2 " + e.getMessage());
+
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
+    @PutMapping("/updateUser/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody @Valid User user) {
         try {
             if (!userService.findById(id).isPresent()) {
                 return ResponseEntity.notFound().build();
@@ -110,7 +113,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteUser/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         try {
             if (!userService.findById(id).isPresent()) {
@@ -160,18 +163,12 @@ public class UserController {
                     .body(Map.of("message", "Failed to update PIN"));
         }
     }
+    @GetMapping("/pos/{posId}")
+    public List<User> getUsersByPOS(@PathVariable int posId) {
+        return userService.getUsersByPOS(posId);
+    }
 /*
-    @PostMapping
-    @PreAuthorize("hasAuthority('MAIN_ADMIN')")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest request) throws MessagingException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
-    }
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('MAIN_ADMIN')")
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUsers();
-    }
 
 
     @GetMapping("/enterprise/{enterpriseId}")
@@ -210,22 +207,94 @@ public class UserController {
         return userService.getUsersByUserType(userType);
     }
 
-    @PutMapping("/{userId}")
-    @PreAuthorize("hasAuthority('MAIN_ADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer userId, @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(userService.updateUser(userId, request));
-    }*/
-
-    /*@DeleteMapping("/{userId}")
-    @PreAuthorize("hasAuthority('MAIN_ADMIN')")
-    public ResponseEntity<MessageResponse> deleteUser(@PathVariable Integer userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.ok(new MessageResponse("User deleted successfully"));
     }*/
 
     @PostMapping("/activate")
     public ResponseEntity<MessageResponse> activateAccount(@RequestParam("token") String token) throws MessagingException {
         userService.activateAccount(token);
-        return ResponseEntity.ok(new MessageResponse("Account activated successfully"));
+        return ResponseEntity.ok(new MessageResponse("OTP SEND successfully"));
+    }
+    @PostMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<User> assignRoleToUser(
+            @PathVariable Integer userId,
+            @PathVariable Integer roleId) {
+        try {
+            User updatedUser = userService.assignRoleToUser(userId, roleId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{userId}/roles")
+    public ResponseEntity<User> assignRolesToUser(
+            @PathVariable Integer userId,
+            @RequestBody List<Integer> roleIds) {
+        try {
+            User updatedUser = userService.assignRolesToUser(userId, roleIds);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    // to test it's better
+    @PostMapping("/{userId}/roles/add")
+    public ResponseEntity<User> addRoleToUser(
+            @PathVariable Integer userId,
+            @RequestBody Map<String, Integer> request) {
+        try {
+            Integer roleId = request.get("roleId");
+            User updatedUser = userService.assignRoleToUser(userId, roleId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @DeleteMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<User> removeRoleFromUser(
+            @PathVariable Integer userId,
+            @PathVariable Integer roleId) {
+        try {
+            User updatedUser = userService.removeRoleFromUser(userId, roleId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
+    @DeleteMapping("/{userId}/roles")
+    public ResponseEntity<User> removeRolesFromUser(
+            @PathVariable Integer userId,
+            @RequestBody List<Integer> roleIds) {
+        try {
+            User updatedUser = userService.removeRolesFromUser(userId, roleIds);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
+    @DeleteMapping("/{userId}/roles/all")
+    public ResponseEntity<User> removeAllRolesFromUser(@PathVariable Integer userId) {
+        try {
+            User updatedUser = userService.removeAllRolesFromUser(userId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

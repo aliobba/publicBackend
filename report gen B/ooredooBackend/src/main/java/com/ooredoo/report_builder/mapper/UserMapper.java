@@ -1,12 +1,8 @@
 package com.ooredoo.report_builder.mapper;
 
-import com.ooredoo.report_builder.controller.user.UserResponse;
-import com.ooredoo.report_builder.dto.request.UserRequest;
 import com.ooredoo.report_builder.dto.response.UserResponseDTO;
 import com.ooredoo.report_builder.user.User;
 import org.mapstruct.*;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

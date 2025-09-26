@@ -82,88 +82,6 @@ public class FormComponent {
         return new FormComponentBuilderImpl();
     }
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public String getElementType() {
-        return this.elementType;
-    }
-
-    public String getLabel() {
-        return this.label;
-    }
-
-
-
-    public Integer getOrderIndex() {
-        return this.orderIndex;
-    }
-
-    public Boolean getRequired() {
-        return this.required;
-    }
-
-    public Form getForm() {
-        return this.form;
-    }
-
-    public List<ComponentProperty> getProperties() {
-        return this.properties;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setElementType(String elementType) {
-        this.elementType = elementType;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-
-    public void setOrderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-    }
-
-    public void setRequired(Boolean required) {
-        this.required = required;
-    }
-
-    public void setForm(Form form) {
-        this.form = form;
-    }
-
-    public void setProperties(List<ComponentProperty> properties) {
-        this.properties = properties;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    public List<ElementOption> getOptions() {
-        return this.options;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setOptions(List<ElementOption> options) {
-        this.options = options;
-    }
 
     public boolean equals(final Object o) {
         if (o == this) return true;
@@ -238,7 +156,87 @@ public class FormComponent {
     }
 
     public String toString() {
-        return "FormComponent(id=" + this.getId() + ", elementType=" + this.getElementType() + ", label=" + this.getLabel() +  ", orderIndex=" + this.getOrderIndex() + ", required=" + this.getRequired() + ", createdAt=" + this.getCreatedAt() + ", updatedAt=" + this.getUpdatedAt() + ", form=" + this.getForm() + ", properties=" + this.getProperties() + ", options=" + this.getOptions() + ")";
+        return "FormComponent(id=" + this.getId() + ", elementType=" + this.getElementType() + ", label=" + this.getLabel() + ", orderIndex=" + this.getOrderIndex() + ", required=" + this.getRequired() + ", createdAt=" + this.getCreatedAt() + ", updatedAt=" + this.getUpdatedAt() + ", form=" + this.getForm() + ", properties=" + this.getProperties() + ", options=" + this.getOptions() + ")";
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getElementType() {
+        return this.elementType;
+    }
+
+    public String getLabel() {
+        return this.label;
+    }
+
+    public Integer getOrderIndex() {
+        return this.orderIndex;
+    }
+
+    public Boolean getRequired() {
+        return this.required;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public Form getForm() {
+        return this.form;
+    }
+
+    public List<ComponentProperty> getProperties() {
+        return this.properties;
+    }
+
+    public List<ElementOption> getOptions() {
+        return this.options;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setElementType(String elementType) {
+        this.elementType = elementType;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setForm(Form form) {
+        this.form = form;
+    }
+
+    public void setProperties(List<ComponentProperty> properties) {
+        this.properties = properties;
+    }
+
+    public void setOptions(List<ElementOption> options) {
+        this.options = options;
     }
 
     public static abstract class FormComponentBuilder<C extends FormComponent, B extends FormComponentBuilder<C, B>> {
@@ -320,7 +318,7 @@ public class FormComponent {
         public abstract C build();
 
         public String toString() {
-            return "FormComponent.FormComponentBuilder(id=" + this.id + ", elementType=" + this.elementType + ", label=" + this.label  + ", orderIndex=" + this.orderIndex + ", required=" + this.required + ", form=" + this.form + ", properties=" + this.properties + ")";
+            return "FormComponent.FormComponentBuilder(id=" + this.id + ", elementType=" + this.elementType + ", label=" + this.label + ", orderIndex=" + this.orderIndex + ", required=" + this.required + ", form=" + this.form + ", properties=" + this.properties + ")";
         }
 
         public FormComponentBuilder<C, B> createdAt(LocalDateTime createdAt) {

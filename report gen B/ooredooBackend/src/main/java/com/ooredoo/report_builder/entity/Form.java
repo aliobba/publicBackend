@@ -7,7 +7,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +26,6 @@ public class Form {
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
-    ;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,31 +46,32 @@ public class Form {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> assignedUsers;
-/*
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "form_assigned_enterprises",
-            joinColumns = @JoinColumn(name = "form_id"),
-            inverseJoinColumns = @JoinColumn(name = "enterprise_id"))
-    private Set<Enterprise> assignedEnterprises = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "form_assigned_sectors",
-            joinColumns = @JoinColumn(name = "form_id"),
-            inverseJoinColumns = @JoinColumn(name = "sector_id"))
-    private Set<Sector> assignedSectors = new HashSet<>();
+    /*
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "form_assigned_enterprises",
+                joinColumns = @JoinColumn(name = "form_id"),
+                inverseJoinColumns = @JoinColumn(name = "enterprise_id"))
+        private Set<Enterprise> assignedEnterprises = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "form_assigned_zones",
-            joinColumns = @JoinColumn(name = "form_id"),
-            inverseJoinColumns = @JoinColumn(name = "zone_id"))
-    private Set<Zone> assignedZones = new HashSet<>();
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "form_assigned_sectors",
+                joinColumns = @JoinColumn(name = "form_id"),
+                inverseJoinColumns = @JoinColumn(name = "sector_id"))
+        private Set<Sector> assignedSectors = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "form_assigned_regions",
-            joinColumns = @JoinColumn(name = "form_id"),
-            inverseJoinColumns = @JoinColumn(name = "region_id"))
-    private Set<Region> assignedRegions = new HashSet<>();
-*/
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "form_assigned_zones",
+                joinColumns = @JoinColumn(name = "form_id"),
+                inverseJoinColumns = @JoinColumn(name = "zone_id"))
+        private Set<Zone> assignedZones = new HashSet<>();
+
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "form_assigned_regions",
+                joinColumns = @JoinColumn(name = "form_id"),
+                inverseJoinColumns = @JoinColumn(name = "region_id"))
+        private Set<Region> assignedRegions = new HashSet<>();
+    */
     public Form(Integer id, String name, String description, LocalDateTime createdAt, LocalDateTime updatedAt, User creator, List<FormComponent> components, List<FormSubmission> submissions, Set<User> assignedUsers) {
         this.id = id;
         this.name = name;
@@ -131,22 +130,6 @@ public class Form {
     public Set<User> getAssignedUsers() {
         return this.assignedUsers;
     }
-/*
-    public Set<Enterprise> getAssignedEnterprises() {
-        return this.assignedEnterprises;
-    }
-
-    public Set<Sector> getAssignedSectors() {
-        return this.assignedSectors;
-    }
-
-    public Set<Zone> getAssignedZones() {
-        return this.assignedZones;
-    }
-
-    public Set<Region> getAssignedRegions() {
-        return this.assignedRegions;
-    }*/
 
     public void setId(Integer id) {
         this.id = id;
@@ -183,7 +166,25 @@ public class Form {
     public void setAssignedUsers(Set<User> assignedUsers) {
         this.assignedUsers = assignedUsers;
     }
-/*
+
+    /*
+    public Set<Enterprise> getAssignedEnterprises() {
+        return this.assignedEnterprises;
+    }
+
+    public Set<Sector> getAssignedSectors() {
+        return this.assignedSectors;
+    }
+
+    public Set<Zone> getAssignedZones() {
+        return this.assignedZones;
+    }
+
+    public Set<Region> getAssignedRegions() {
+        return this.assignedRegions;
+    }*/
+
+    /*
     public void setAssignedEnterprises(Set<Enterprise> assignedEnterprises) {
         this.assignedEnterprises = assignedEnterprises;
     }
@@ -262,33 +263,34 @@ public class Form {
             this.assignedUsers = assignedUsers;
             return this;
         }
-/*
-        public FormBuilder assignedEnterprises(Set<Enterprise> assignedEnterprises) {
-            this.assignedEnterprises = assignedEnterprises;
-            return this;
-        }
 
-        public FormBuilder assignedSectors(Set<Sector> assignedSectors) {
-            this.assignedSectors = assignedSectors;
-            return this;
-        }
+        /*
+                public FormBuilder assignedEnterprises(Set<Enterprise> assignedEnterprises) {
+                    this.assignedEnterprises = assignedEnterprises;
+                    return this;
+                }
 
-        public FormBuilder assignedZones(Set<Zone> assignedZones) {
-            this.assignedZones = assignedZones;
-            return this;
-        }
+                public FormBuilder assignedSectors(Set<Sector> assignedSectors) {
+                    this.assignedSectors = assignedSectors;
+                    return this;
+                }
 
-        public FormBuilder assignedRegions(Set<Region> assignedRegions) {
-            this.assignedRegions = assignedRegions;
-            return this;
-        }
-*/
+                public FormBuilder assignedZones(Set<Zone> assignedZones) {
+                    this.assignedZones = assignedZones;
+                    return this;
+                }
+
+                public FormBuilder assignedRegions(Set<Region> assignedRegions) {
+                    this.assignedRegions = assignedRegions;
+                    return this;
+                }
+        */
         public Form build() {
             return new Form(this.id, this.name, this.description, this.createdAt, this.updatedAt, this.creator, this.components, this.submissions, this.assignedUsers);
         }
 
         public String toString() {
-            return "Form.FormBuilder(id=" + this.id + ", name=" + this.name + ", description=" + this.description + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", creator=" + this.creator + ", components=" + this.components + ", submissions=" + this.submissions + ", assignedUsers=" + this.assignedUsers  + ")";
+            return "Form.FormBuilder(id=" + this.id + ", name=" + this.name + ", description=" + this.description + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", creator=" + this.creator + ", components=" + this.components + ", submissions=" + this.submissions + ", assignedUsers=" + this.assignedUsers + ")";
         }
     }
 }

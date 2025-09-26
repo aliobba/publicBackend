@@ -2,6 +2,7 @@ package com.ooredoo.report_builder.controller;
 
 import com.ooredoo.report_builder.entity.Enterprise;
 import com.ooredoo.report_builder.services.EnterpriseService;
+import com.ooredoo.report_builder.user.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,11 @@ public class EnterpriseController {
         Optional<Enterprise> enterprise = enterpriseService.findByName(name);
         return enterprise.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/getAllUserInEnterprise/{enterpriseId}")
+
+    public ResponseEntity<List<User>> geUsersIntEnterprise(@PathVariable Integer enterpriseId) {
+        return ResponseEntity.ok(enterpriseService.getUserInEnterprise(enterpriseId));
     }
 
     @PostMapping("/createEnterprise")
@@ -98,6 +104,7 @@ public class EnterpriseController {
         enterpriseService.unassignUserFromEnterprise(enterpriseId, userId);
         return ResponseEntity.ok(new MessageResponse("User added to enterprise successfully"));
     }
+
 
 /*
     private final EnterpriseService enterpriseService;
