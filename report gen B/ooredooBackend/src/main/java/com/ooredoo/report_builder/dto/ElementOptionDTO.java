@@ -19,6 +19,13 @@ public class ElementOptionDTO {
     public ElementOptionDTO() {
     }
 
+    public ElementOptionDTO(String label, String value, Integer displayOrder) {
+        this.label = label;
+        this.value = value;
+        this.displayOrder = displayOrder;
+    }
+
+
     public static ElementOptionDTOBuilder builder() {
         return new ElementOptionDTOBuilder();
     }

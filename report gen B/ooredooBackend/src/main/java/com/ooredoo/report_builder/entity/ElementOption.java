@@ -13,10 +13,10 @@ public class ElementOption {
     private String label;
     private String value;
     private Integer displayOrder;
-
-    @ManyToOne
-    @JoinColumn(name = "component_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "component_id", nullable = false)
     private FormComponent component;
+
 
     public ElementOption(Integer id, String label, String value, Integer displayOrder, FormComponent component) {
         this.id = id;

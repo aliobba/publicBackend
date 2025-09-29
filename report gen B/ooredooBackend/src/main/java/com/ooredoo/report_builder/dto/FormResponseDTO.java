@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-
 public class FormResponseDTO {
     private Integer id;
     private String name;
@@ -26,6 +25,9 @@ public class FormResponseDTO {
         this.creatorId = creatorId;
         this.components = components;
         this.assignedUserIds = assignedUserIds;
+    }
+
+    public FormResponseDTO() {
     }
 
     public static FormResponseDTOBuilder builder() {

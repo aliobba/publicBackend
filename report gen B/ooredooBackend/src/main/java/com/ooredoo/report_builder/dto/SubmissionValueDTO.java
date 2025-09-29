@@ -1,24 +1,49 @@
 package com.ooredoo.report_builder.dto;
 
+
 public class SubmissionValueDTO {
 
     private Integer id;
     private String value;
-    private Integer submissionId; // Only expose the submission's ID
-    private Integer componentId;
+    private Integer submissionId;
 
-    public SubmissionValueDTO(Integer id, String value, Integer submissionId, Integer componentId) {
+    // FIXED: Include assignment info instead of just component
+    private Integer assignmentId;
+    private Integer componentId;
+    private String componentLabel;
+    private String componentType;
+    private Integer orderIndex;
+
+    // Additional metadata for UI
+    private Boolean isRequired;
+    private String displayValue;
+
+    public SubmissionValueDTO(Integer assignmentId, String value) {
+        this.assignmentId = assignmentId;
+        this.value = value;
+    }
+
+    public SubmissionValueDTO(Integer id, String value, Integer assignmentId, String componentLabel) {
+        this.id = id;
+        this.value = value;
+        this.assignmentId = assignmentId;
+        this.componentLabel = componentLabel;
+    }
+
+    public SubmissionValueDTO(Integer id, String value, Integer submissionId, Integer assignmentId, Integer componentId, String componentLabel, String componentType, Integer orderIndex, Boolean isRequired, String displayValue) {
         this.id = id;
         this.value = value;
         this.submissionId = submissionId;
+        this.assignmentId = assignmentId;
         this.componentId = componentId;
+        this.componentLabel = componentLabel;
+        this.componentType = componentType;
+        this.orderIndex = orderIndex;
+        this.isRequired = isRequired;
+        this.displayValue = displayValue;
     }
 
     public SubmissionValueDTO() {
-    }
-
-    public static SubmissionValueDTOBuilder builder() {
-        return new SubmissionValueDTOBuilder();
     }
 
     public Integer getId() {
@@ -33,8 +58,32 @@ public class SubmissionValueDTO {
         return this.submissionId;
     }
 
+    public Integer getAssignmentId() {
+        return this.assignmentId;
+    }
+
     public Integer getComponentId() {
         return this.componentId;
+    }
+
+    public void setAssignmentId(Integer assignmentId) {
+        this.assignmentId = assignmentId;
+    }
+
+    public String getComponentLabel() {
+        return this.componentLabel;
+    }
+
+    public void setComponentLabel(String componentLabel) {
+        this.componentLabel = componentLabel;
+    }
+
+    public String getComponentType() {
+        return this.componentType;
+    }
+
+    public void setComponentType(String componentType) {
+        this.componentType = componentType;
     }
 
     public void setId(Integer id) {
@@ -49,45 +98,31 @@ public class SubmissionValueDTO {
         this.submissionId = submissionId;
     }
 
+    public Integer getOrderIndex() {
+        return this.orderIndex;
+    }
+
     public void setComponentId(Integer componentId) {
         this.componentId = componentId;
     }
 
-    public static class SubmissionValueDTOBuilder {
-        private Integer id;
-        private String value;
-        private Integer submissionId;
-        private Integer componentId;
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
 
-        SubmissionValueDTOBuilder() {
-        }
+    public Boolean getIsRequired() {
+        return this.isRequired;
+    }
 
-        public SubmissionValueDTOBuilder id(Integer id) {
-            this.id = id;
-            return this;
-        }
+    public void setIsRequired(Boolean isRequired) {
+        this.isRequired = isRequired;
+    }
 
-        public SubmissionValueDTOBuilder value(String value) {
-            this.value = value;
-            return this;
-        }
+    public String getDisplayValue() {
+        return this.displayValue;
+    }
 
-        public SubmissionValueDTOBuilder submissionId(Integer submissionId) {
-            this.submissionId = submissionId;
-            return this;
-        }
-
-        public SubmissionValueDTOBuilder componentId(Integer componentId) {
-            this.componentId = componentId;
-            return this;
-        }
-
-        public SubmissionValueDTO build() {
-            return new SubmissionValueDTO(this.id, this.value, this.submissionId, this.componentId);
-        }
-
-        public String toString() {
-            return "SubmissionValueDTO.SubmissionValueDTOBuilder(id=" + this.id + ", value=" + this.value + ", submissionId=" + this.submissionId + ", componentId=" + this.componentId + ")";
-        }
+    public void setDisplayValue(String displayValue) {
+        this.displayValue = displayValue;
     }
 }

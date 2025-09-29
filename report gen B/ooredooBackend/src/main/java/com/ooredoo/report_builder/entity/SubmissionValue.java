@@ -10,24 +10,31 @@ public class SubmissionValue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String value;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "submission_id")
+    @JoinColumn(name = "submission_id", nullable = false)
     private FormSubmission submission;
 
+    // FIXED: Link to FormComponentAssignment instead of FormComponent
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "component_id")
-    private FormComponent component;
+    @JoinColumn(name = "assignment_id", nullable = false)
+    private FormComponentAssignment assignment;
 
-    public SubmissionValue(Integer id, String value, FormSubmission submission, FormComponent component) {
+    @Column(columnDefinition = "TEXT")
+    private String value;
+
+    public SubmissionValue(Integer id, String value, FormSubmission submission, FormComponentAssignment assignment) {
         this.id = id;
         this.value = value;
         this.submission = submission;
-        this.component = component;
+        this.assignment = assignment;
     }
 
     public SubmissionValue() {
+    }
+
+    // Helper method to get component (for backward compatibility)
+    public FormComponent getComponent() {
+        return assignment != null ? assignment.getComponent() : null;
     }
 
     public Integer getId() {
@@ -42,8 +49,12 @@ public class SubmissionValue {
         return this.submission;
     }
 
-    public FormComponent getComponent() {
-        return this.component;
+    public FormComponentAssignment getAssignment() {
+        return assignment;
+    }
+
+    public void setAssignment(FormComponentAssignment assignment) {
+        this.assignment = assignment;
     }
 
     public void setId(Integer id) {
@@ -58,7 +69,4 @@ public class SubmissionValue {
         this.submission = submission;
     }
 
-    public void setComponent(FormComponent component) {
-        this.component = component;
-    }
 }

@@ -1,29 +1,30 @@
 package com.ooredoo.report_builder.mapper;
 
-import com.ooredoo.report_builder.entity.ComponentProperty;
-import com.ooredoo.report_builder.entity.FormComponent;
+
 import com.ooredoo.report_builder.dto.ComponentPropertyDTO;
-import com.ooredoo.report_builder.repo.FormComponentRepository;
+import com.ooredoo.report_builder.entity.ComponentProperty;
+import org.springframework.stereotype.Component;
 
-import org.mapstruct.*;
+@Component
+public class ComponentPropertyMapper {
 
-@Mapper(componentModel = "spring")
-public interface ComponentPropertyMapper {
+    public ComponentProperty toComponentProperty(ComponentPropertyDTO dto) {
+        if (dto == null) return null;
 
-    @Mapping(target = "componentId", expression = "java(property.getComponent() != null ? property.getComponent().getId() : null)")
-    ComponentPropertyDTO toComponentPropertyDTO(ComponentProperty property);
+        ComponentProperty property = new ComponentProperty();
+        property.setPropertyName(dto.getPropertyName());
+        property.setPropertyValue(dto.getPropertyValue());
+        return property;
+    }
 
-    @Mapping(target = "component", ignore = true)
-    ComponentProperty toComponentProperty(ComponentPropertyDTO componentPropertyDTO);
+    public ComponentPropertyDTO toComponentPropertyDTO(ComponentProperty entity) {
+        if (entity == null) return null;
 
-    @AfterMapping
-    default void setComponent(@MappingTarget ComponentProperty componentProperty,
-                              ComponentPropertyDTO componentPropertyDTO,
-                              @Context FormComponentRepository formComponentRepository) {
-        if (componentPropertyDTO.getComponentId() != null) {
-            FormComponent component = formComponentRepository.findById(componentPropertyDTO.getComponentId())
-                    .orElseThrow(() -> new RuntimeException("FormComponent not found"));
-            componentProperty.setComponent(component);
-        }
+        ComponentPropertyDTO dto = new ComponentPropertyDTO();
+        dto.setId(entity.getId());
+        dto.setPropertyName(entity.getPropertyName());
+        dto.setPropertyValue(entity.getPropertyValue());
+        dto.setComponentId(entity.getComponent() != null ? entity.getComponent().getId() : null);
+        return dto;
     }
 }

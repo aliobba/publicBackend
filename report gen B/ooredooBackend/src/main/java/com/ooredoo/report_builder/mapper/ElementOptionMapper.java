@@ -1,29 +1,32 @@
 package com.ooredoo.report_builder.mapper;
 
 
-import com.ooredoo.report_builder.entity.ElementOption;
-import com.ooredoo.report_builder.entity.FormComponent;
 import com.ooredoo.report_builder.dto.ElementOptionDTO;
-import com.ooredoo.report_builder.repo.FormComponentRepository;
-import org.mapstruct.*;
+import com.ooredoo.report_builder.entity.ElementOption;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface ElementOptionMapper {
+@Component
+public class ElementOptionMapper {
 
-    @Mapping(target = "componentId", expression = "java(elementOption.getComponent() != null ? elementOption.getComponent().getId() : null)")
-    ElementOptionDTO toElementOptionDTO(ElementOption elementOption);
+    public ElementOption toElementOption(ElementOptionDTO dto) {
+        if (dto == null) return null;
 
-    @Mapping(target = "component", ignore = true) // Ignore the component field in automatic mapping
-    ElementOption toElementOption(ElementOptionDTO elementOptionDTO);
-
-    @AfterMapping
-    default void setComponent(@MappingTarget ElementOption elementOption, ElementOptionDTO elementOptionDTO,
-                              @Context FormComponentRepository formComponentRepository) {
-        if (elementOptionDTO.getComponentId() != null) {
-            FormComponent component = formComponentRepository.findById(elementOptionDTO.getComponentId())
-                    .orElseThrow(() -> new RuntimeException("FormComponent not found"));
-            elementOption.setComponent(component);
-        }
+        ElementOption option = new ElementOption();
+        option.setLabel(dto.getLabel());
+        option.setValue(dto.getValue());
+        option.setDisplayOrder(dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0);
+        return option;
     }
 
+    public ElementOptionDTO toElementOptionDTO(ElementOption entity) {
+        if (entity == null) return null;
+
+        ElementOptionDTO dto = new ElementOptionDTO();
+        dto.setId(entity.getId());
+        dto.setLabel(entity.getLabel());
+        dto.setValue(entity.getValue());
+        dto.setDisplayOrder(entity.getDisplayOrder());
+        dto.setComponentId(entity.getComponent() != null ? entity.getComponent().getId() : null);
+        return dto;
+    }
 }

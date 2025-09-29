@@ -1,11 +1,12 @@
 package com.ooredoo.report_builder.services;
 
 
-import com.ooredoo.report_builder.entity.FormComponent;
+import com.ooredoo.report_builder.dto.SubmissionValueDTO;
+import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import com.ooredoo.report_builder.entity.FormSubmission;
 import com.ooredoo.report_builder.entity.SubmissionValue;
-import com.ooredoo.report_builder.dto.SubmissionValueDTO;
 import com.ooredoo.report_builder.mapper.SubmissionValueMapper;
+import com.ooredoo.report_builder.repo.FormComponentAssignmentRepository;
 import com.ooredoo.report_builder.repo.FormComponentRepository;
 import com.ooredoo.report_builder.repo.FormSubmissionRepository;
 import com.ooredoo.report_builder.repo.SubmissionValueRepository;
@@ -23,15 +24,18 @@ public class SubmissionValueService {
     private final FormSubmissionRepository submissionRepository;
     private final FormComponentRepository componentRepository;
     private final SubmissionValueMapper valueMapper;
+    private final FormComponentAssignmentRepository assignmentRepository;
+
 
     public SubmissionValueService(SubmissionValueRepository valueRepository,
                                   FormSubmissionRepository submissionRepository,
                                   FormComponentRepository componentRepository,
-                                  SubmissionValueMapper valueMapper) {
+                                  SubmissionValueMapper valueMapper, FormComponentAssignmentRepository assignmentRepository) {
         this.valueRepository = valueRepository;
         this.submissionRepository = submissionRepository;
         this.componentRepository = componentRepository;
         this.valueMapper = valueMapper;
+        this.assignmentRepository = assignmentRepository;
     }
 
     // Get all submission values
@@ -50,18 +54,20 @@ public class SubmissionValueService {
 
     // Create a new value
     @Transactional
-    public SubmissionValueDTO createValue(SubmissionValueDTO valueDTO, Integer submissionId, Integer componentId) {
+    public SubmissionValueDTO createValue(SubmissionValueDTO valueDTO, Integer submissionId, Integer assignmentId) {
         FormSubmission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
-        FormComponent component = componentRepository.findById(componentId)
+
+        FormComponentAssignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Component not found"));
 
         // Direct mapping from DTO to entity
         SubmissionValue value = new SubmissionValue();
         value.setValue(valueDTO.getValue());
         value.setSubmission(submission);
-        value.setComponent(component);
+        value.setAssignment(assignment);
+
         
         SubmissionValue savedValue = valueRepository.save(value);
         return valueMapper.toSubmissionValueDTO(savedValue);
@@ -92,14 +98,16 @@ public class SubmissionValueService {
 
         List<SubmissionValue> values = new ArrayList<>();
         for (SubmissionValueDTO valueDTO : valueDTOs) {
-            FormComponent component = componentRepository.findById(valueDTO.getComponentId())
+            //FormComponent component = componentRepository.findById(valueDTO.getComponentId())
+            //  .orElseThrow(() -> new RuntimeException("Component not found"));
+            FormComponentAssignment assignment = assignmentRepository.findById(valueDTO.getAssignmentId())
                     .orElseThrow(() -> new RuntimeException("Component not found"));
 
             // Direct mapping from DTO to entity
             SubmissionValue value = new SubmissionValue();
             value.setValue(valueDTO.getValue());
             value.setSubmission(submission);
-            value.setComponent(component);
+            value.setAssignment(assignment);
             values.add(value);
         }
 

@@ -1,38 +1,67 @@
 package com.ooredoo.report_builder.mapper;
 
 
-import com.ooredoo.report_builder.entity.Form;
+import com.ooredoo.report_builder.dto.FormSubmissionResponseDTO;
+import com.ooredoo.report_builder.dto.SubmissionValueDTO;
+import com.ooredoo.report_builder.entity.FormComponent;
+import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import com.ooredoo.report_builder.entity.FormSubmission;
-import com.ooredoo.report_builder.dto.FormSubmissionDTO;
-import com.ooredoo.report_builder.repo.FormRepository;
-import com.ooredoo.report_builder.repo.UserRepository;
-import com.ooredoo.report_builder.user.User;
-import org.mapstruct.*;
+import com.ooredoo.report_builder.entity.SubmissionValue;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring", uses = SubmissionValueMapper.class)
-public interface FormSubmissionMapper {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    @Mapping(target = "formId", expression = "java(submission.getForm() != null ? submission.getForm().getId() : null)")
-    @Mapping(target = "submittedById", expression = "java(submission.getSubmittedBy() != null ? submission.getSubmittedBy().getId() : null)")
-    @Mapping(target = "values", source = "values")
-    FormSubmissionDTO toFormSubmissionDTO(FormSubmission submission);
+@Component
+public class FormSubmissionMapper {
 
-    @Mapping(target = "form", ignore = true) // Ignore the form field in automatic mapping
-    @Mapping(target = "submittedBy", ignore = true) // Ignore the submittedBy field in automatic mapping
-    FormSubmission toFormSubmission(FormSubmissionDTO formSubmissionDTO);
+    public FormSubmissionResponseDTO toFormSubmissionResponseDTO(FormSubmission entity) {
+        if (entity == null) return null;
 
-    @AfterMapping
-    default void setFormAndSubmittedBy(@MappingTarget FormSubmission formSubmission, FormSubmissionDTO formSubmissionDTO,
-                                       @Context FormRepository formRepository, @Context UserRepository userRepository) {
-        if (formSubmissionDTO.getFormId() != null) {
-            Form form = formRepository.findById(formSubmissionDTO.getFormId())
-                    .orElseThrow(() -> new RuntimeException("Form not found"));
-            formSubmission.setForm(form);
+        FormSubmissionResponseDTO dto = new FormSubmissionResponseDTO();
+        dto.setId(entity.getId());
+        dto.setFormId(entity.getForm().getId());
+        dto.setFormName(entity.getForm().getName());
+        dto.setSubmittedById(entity.getSubmittedBy().getId());
+        dto.setSubmittedByName(entity.getSubmittedBy().getFirstname() + " " + entity.getSubmittedBy().getLastname());
+        dto.setSubmittedAt(entity.getSubmittedAt());
+        dto.setIsComplete(entity.getComplete());
+
+        // FIXED: Convert submission values with assignment info
+        if (entity.getValues() != null) {
+            List<SubmissionValueDTO> valueDTOs = entity.getValues().stream()
+                    .map(this::toSubmissionValueDTO)
+                    .sorted((a, b) -> Integer.compare(a.getOrderIndex(), b.getOrderIndex()))
+                    .collect(Collectors.toList());
+            dto.setValues(valueDTOs);
         }
-        if (formSubmissionDTO.getSubmittedById() != null) {
-            User submittedBy = userRepository.findById(formSubmissionDTO.getSubmittedById())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            formSubmission.setSubmittedBy(submittedBy);
-        }
+
+        return dto;
     }
+
+    private SubmissionValueDTO toSubmissionValueDTO(SubmissionValue value) {
+        if (value == null) return null;
+
+        SubmissionValueDTO dto = new SubmissionValueDTO();
+        dto.setId(value.getId());
+        dto.setValue(value.getValue());
+        dto.setSubmissionId(value.getSubmission().getId());
+
+        // FIXED: Include assignment info
+        FormComponentAssignment assignment = value.getAssignment();
+        if (assignment != null) {
+            dto.setAssignmentId(assignment.getId());
+            dto.setOrderIndex(assignment.getOrderIndex());
+
+            FormComponent component = assignment.getComponent();
+            if (component != null) {
+                dto.setComponentId(component.getId());
+                dto.setComponentLabel(component.getLabel());
+                dto.setComponentType(component.getElementType().getValue());
+            }
+        }
+
+        return dto;
+    }
+
 }

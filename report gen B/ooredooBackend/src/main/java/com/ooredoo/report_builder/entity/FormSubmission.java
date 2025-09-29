@@ -3,6 +3,7 @@ package com.ooredoo.report_builder.entity;
 
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,17 +17,22 @@ public class FormSubmission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private LocalDateTime submittedAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "form_id")
+    @JoinColumn(name = "form_id", nullable = false)
     private Form form;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "submitted_by_id")
+    @JoinColumn(name = "submitted_by_id", nullable = false)
     private User submittedBy;
 
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime submittedAt;
+
+    @Column(name = "is_complete")
+    private Boolean isComplete = true;
+
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubmissionValue> values;
 
     public FormSubmission(Integer id, LocalDateTime submittedAt, Form form, User submittedBy, List<SubmissionValue> values) {
@@ -37,7 +43,29 @@ public class FormSubmission {
         this.values = values;
     }
 
+    public FormSubmission(List<SubmissionValue> values, Boolean isComplete, LocalDateTime submittedAt, User submittedBy, Form form) {
+        this.values = values;
+        this.isComplete = isComplete;
+        this.submittedAt = submittedAt;
+        this.submittedBy = submittedBy;
+        this.form = form;
+    }
+
+    public FormSubmission(Form form, User submittedBy) {
+        this.form = form;
+        this.submittedBy = submittedBy;
+        this.submittedAt = LocalDateTime.now();
+    }
+
     public FormSubmission() {
+    }
+
+    public Boolean getComplete() {
+        return isComplete;
+    }
+
+    public void setComplete(Boolean complete) {
+        isComplete = complete;
     }
 
     public Integer getId() {

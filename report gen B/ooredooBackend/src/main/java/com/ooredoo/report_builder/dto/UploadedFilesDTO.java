@@ -2,6 +2,8 @@ package com.ooredoo.report_builder.dto;
 
 import com.ooredoo.report_builder.entity.SubmissionValue;
 
+import java.time.LocalDateTime;
+
 public class UploadedFilesDTO {
 
     private Integer id;
@@ -11,6 +13,19 @@ public class UploadedFilesDTO {
     private Integer fileSize;
     private String filePath;
     private Integer submissionValueId;
+
+
+    // File metadata
+    private LocalDateTime uploadedAt;
+    private String downloadUrl;
+
+
+    public UploadedFilesDTO(String originalFileName, String storedFileName, String fileType, Integer fileSize) {
+        this.originalFileName = originalFileName;
+        this.storedFileName = storedFileName;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
+    }
 
 
     public UploadedFilesDTO(Integer id, String originalFileName, String storedFileName, String fileType, Integer fileSize, String filePath, Integer submissionValueId) {
@@ -80,6 +95,26 @@ public class UploadedFilesDTO {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
+    }
+
+    public void setSubmissionValueId(Integer submissionValueId) {
+        this.submissionValueId = submissionValueId;
     }
 
     public void setSubmissionValue(SubmissionValue submissionValue) {

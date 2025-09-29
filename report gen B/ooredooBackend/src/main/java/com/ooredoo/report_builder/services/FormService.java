@@ -1,23 +1,22 @@
 package com.ooredoo.report_builder.services;
 
 
-import com.ooredoo.report_builder.dto.*;
-import com.ooredoo.report_builder.entity.ComponentProperty;
-import com.ooredoo.report_builder.entity.ElementOption;
+import com.ooredoo.report_builder.dto.FormBuilderRequestDTO;
+import com.ooredoo.report_builder.dto.FormRequestDTO;
+import com.ooredoo.report_builder.dto.FormResponseDTO;
 import com.ooredoo.report_builder.entity.Form;
-import com.ooredoo.report_builder.entity.FormComponent;
+import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.mapper.ComponentPropertyMapper;
 import com.ooredoo.report_builder.mapper.ElementOptionMapper;
 import com.ooredoo.report_builder.mapper.FormComponentMapper;
 import com.ooredoo.report_builder.mapper.FormMapper;
-import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.*;
 import com.ooredoo.report_builder.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -35,8 +34,14 @@ public class FormService {
     private final ComponentPropertyMapper propertyMapper;
     private final ElementOptionMapper optionMapper;
 
-
-    public FormService(FormRepository formRepository, FormComponentRepository componentRepository, ComponentPropertyRepository propertyRepository, ElementOptionRepository optionRepository, UserRepository userRepository, FormMapper formMapper, FormComponentMapper componentMapper, ComponentPropertyMapper propertyMapper, ElementOptionMapper optionMapper) {
+    public FormService(FormRepository formRepository,
+                       FormComponentRepository componentRepository,
+                       ComponentPropertyRepository propertyRepository,
+                       ElementOptionRepository optionRepository,
+                       UserRepository userRepository, FormMapper formMapper,
+                       FormComponentMapper componentMapper,
+                       ComponentPropertyMapper propertyMapper,
+                       ElementOptionMapper optionMapper) {
         this.formRepository = formRepository;
         this.componentRepository = componentRepository;
         this.propertyRepository = propertyRepository;
@@ -48,141 +53,143 @@ public class FormService {
         this.optionMapper = optionMapper;
     }
 
-    // --- Form Section ---
+
+    // === FORM CRUD OPERATIONS ===
+
     public FormResponseDTO createForm(FormRequestDTO request, User creator) {
-        // Use mapper to convert DTO to entity
         Form form = formMapper.toEntity(request);
         form.setCreator(creator);
-        
-        return formMapper.toFormResponseDTO(formRepository.save(form));
+        form.setCreatedAt(LocalDateTime.now());
+        form.setUpdatedAt(LocalDateTime.now());
+
+        Form savedForm = formRepository.save(form);
+        return formMapper.toFormResponseDTO(savedForm);
     }
 
     public FormResponseDTO updateForm(Integer formId, FormRequestDTO request) {
         Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
         form.setName(request.getName());
         form.setDescription(request.getDescription());
+        form.setUpdatedAt(LocalDateTime.now());
 
-        return formMapper.toFormResponseDTO(formRepository.save(form));
+        Form updatedForm = formRepository.save(form);
+        return formMapper.toFormResponseDTO(updatedForm);
     }
 
+    @Transactional
     public void deleteForm(Integer formId) {
+        if (!formRepository.existsById(formId)) {
+            throw new ResourceNotFoundException("Form not found with id: " + formId);
+        }
         formRepository.deleteById(formId);
     }
 
+    @Transactional()
     public List<FormResponseDTO> getAllForms() {
         return formRepository.findAll().stream()
                 .map(formMapper::toFormResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional()
     public List<FormResponseDTO> getFormsCreatedBy(User user) {
         return formRepository.findByCreator(user).stream()
                 .map(formMapper::toFormResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional()
     public FormResponseDTO getFormById(Integer formId) {
-        return formRepository.findById(formId)
-                .map(formMapper::toFormResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found"));
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+        return formMapper.toFormResponseDTO(form);
     }
 
+    // === FORM ASSIGNMENT OPERATIONS ===
+
+    @Transactional
     public void assignFormToUsers(Integer formId, List<Integer> userIds) {
         Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
         List<User> users = userRepository.findAllById(userIds);
+        if (users.size() != userIds.size()) {
+            throw new ResourceNotFoundException("Some users not found");
+        }
+
         form.getAssignedUsers().addAll(users);
         formRepository.save(form);
     }
 
+    @Transactional
     public void unassignFormFromUser(Integer formId, Integer userId) {
         Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         form.getAssignedUsers().remove(user);
         formRepository.save(form);
     }
 
-    // --- Component Section ---
-    public FormComponentDTO addComponent(Integer formId, FormComponentDTO componentDTO) {
+    @Transactional()
+    public List<Integer> getFormAssignedUsers(Integer formId) {
         Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
-        FormComponent component = componentMapper.toFormComponent(componentDTO);
-        component.setForm(form);
-
-        return componentMapper.toFormComponentDTO(componentRepository.save(component));
+        return form.getAssignedUsers().stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
     }
 
-    public FormComponentDTO updateComponent(Integer componentId, FormComponentDTO componentDTO) {
-        FormComponent component = componentRepository.findById(componentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Component not found"));
+    @Transactional()
+    public FormResponseDTO getFormWithAllDetails(Integer formId) {
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
-        component.setLabel(componentDTO.getLabel());
-        component.setElementType(componentDTO.getElementType());
-        component.setRequired(componentDTO.getRequired());
-
-
-        return componentMapper.toFormComponentDTO(componentRepository.save(component));
+        return formMapper.toFormResponseDTO(form);
     }
 
-    public void deleteComponent(Integer componentId) {
-        componentRepository.deleteById(componentId);
+    @Transactional()
+    public boolean isUserAuthorizedToViewForm(Integer formId, User user) {
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+
+        return form.getCreator().equals(user) || form.getAssignedUsers().contains(user);
     }
 
-    // --- ComponentProperty Section ---
-    public ComponentPropertyDTO addComponentProperty(Integer componentId, ComponentPropertyDTO propertyDTO) {
-        FormComponent component = componentRepository.findById(componentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Component not found"));
+    @Transactional
+    public FormResponseDTO createFormWithComponents(FormBuilderRequestDTO request, User creator) {
+        // Create form
+        Form form = new Form();
+        form.setName(request.getName());
+        form.setDescription(request.getDescription());
+        form.setCreator(creator);
+        form.setCreatedAt(LocalDateTime.now());
+        form.setUpdatedAt(LocalDateTime.now());
 
-        ComponentProperty property = propertyMapper.toComponentProperty(propertyDTO);
-        property.setComponent(component);
+        Form savedForm = formRepository.save(form);
 
-        return propertyMapper.toComponentPropertyDTO(propertyRepository.save(property));
+        // Add components would be handled by FormComponentService
+
+        // Assign users
+        if (request.getAssignedUserIds() != null && !request.getAssignedUserIds().isEmpty()) {
+            List<User> users = userRepository.findAllById(request.getAssignedUserIds());
+            savedForm.getAssignedUsers().addAll(users);
+            savedForm = formRepository.save(savedForm);
+        }
+
+        return formMapper.toFormResponseDTO(savedForm);
     }
 
-    public ComponentPropertyDTO updateComponentProperty(Integer propertyId, String value) {
-        ComponentProperty property = propertyRepository.findById(propertyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
-
-        property.setPropertyValue(value);
-        return propertyMapper.toComponentPropertyDTO(propertyRepository.save(property));
+    @Transactional()
+    public List<FormResponseDTO> getFormsAssignedToUser(Integer userId) {
+        List<Form> forms = formRepository.findFormsByAssignedUserId(userId);
+        return forms.stream()
+                .map(formMapper::toFormResponseDTO)
+                .collect(Collectors.toList());
     }
-
-    public void deleteComponentProperty(Integer propertyId) {
-        propertyRepository.deleteById(propertyId);
-    }
-
-    // --- ElementOption Section ---
-    public ElementOptionDTO addElementOption(Integer componentId, ElementOptionDTO optionDTO) {
-        FormComponent component = componentRepository.findById(componentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Component not found"));
-
-        ElementOption option = optionMapper.toElementOption(optionDTO);
-        option.setComponent(component);
-
-        return optionMapper.toElementOptionDTO(optionRepository.save(option));
-    }
-
-    public ElementOptionDTO updateElementOption(Integer optionId, String label, String value) {
-        ElementOption option = optionRepository.findById(optionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
-
-        option.setLabel(label);
-        option.setValue(value);
-
-        return optionMapper.toElementOptionDTO(optionRepository.save(option));
-    }
-
-    public void deleteElementOption(Integer optionId) {
-        optionRepository.deleteById(optionId);
-    }
-    
-    // Manual mapping method removed in favor of using the mapper directly
 }

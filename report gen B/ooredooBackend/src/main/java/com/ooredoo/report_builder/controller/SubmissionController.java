@@ -1,29 +1,12 @@
 package com.ooredoo.report_builder.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ooredoo.report_builder.dto.FormSubmissionDTO;
-import com.ooredoo.report_builder.dto.SubmissionValueDTO;
-import com.ooredoo.report_builder.services.FormSubmissionService;
-import com.ooredoo.report_builder.services.UserService;
-import com.ooredoo.report_builder.user.User;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/submissions")
+//@RequestMapping("/submissions")
 public class SubmissionController {
 
-    private final FormSubmissionService submissionService;
+   /* private final FormSubmissionService submissionService;
     private final UserService userService;
 
     public SubmissionController(FormSubmissionService submissionService, UserService userService) {
@@ -45,7 +28,7 @@ public class SubmissionController {
         Map<Integer, String> textValues = parseTextValues(textValuesJson);
         Map<Integer, List<MultipartFile>> parsedFileValues = parseFileValues(fileValues);
 
-        FormSubmissionDTO submissionDTO = submissionService.submitForm(formId, currentUser, textValues, parsedFileValues);
+        FormSubmissionDTO submissionDTO = submissionService.submitForm(formId, currentUser, textValues, arsedFileValues);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(submissionDTO);
     }
@@ -116,5 +99,5 @@ public class SubmissionController {
             parsed.put(Integer.parseInt(entry.getKey()), entry.getValue());
         }
         return parsed;
-    }
+    }*/
 }
