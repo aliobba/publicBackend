@@ -23,14 +23,6 @@ public class ComponentProperty {
     @JoinColumn(name = "component_id", nullable = false)
     private FormComponent component;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(insertable = false)
-    private LocalDateTime updatedAt;
-
     // Constructors
     public ComponentProperty() {
     }

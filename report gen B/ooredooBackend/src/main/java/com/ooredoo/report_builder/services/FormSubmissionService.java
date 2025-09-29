@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class FormSubmissionService {
         }
 
         List<FormComponentAssignment> activeAssignments = assignmentRepository
-                .findActiveAssignmentsWithComponentDetails(formId);
+                .findActiveAssignmentsWithDetails(formId);
 
         FormSubmission submission = new FormSubmission(form, submitter);
         submission = submissionRepository.save(submission);
@@ -105,12 +106,36 @@ public class FormSubmissionService {
 
     @Transactional()
     public FormWithAssignmentsDTO getFormForSubmission(Integer formId) {
+        // Step 1: Fetch form
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
-        List<FormComponentAssignment> assignments = assignmentRepository
-                .findActiveAssignmentsWithComponentDetails(formId);
+        // Step 2: Fetch assignments with components (NO properties/options yet)
+        List<FormComponentAssignment> assignments =
+                assignmentRepository.findActiveAssignmentsWithComponents(formId);
 
+        if (assignments.isEmpty()) {
+            FormWithAssignmentsDTO dto = new FormWithAssignmentsDTO();
+            dto.setId(form.getId());
+            dto.setName(form.getName());
+            dto.setDescription(form.getDescription());
+            dto.setComponentAssignments(new ArrayList<>());
+            return dto;
+        }
+
+        // Step 3: Extract component IDs
+        List<Integer> componentIds = assignments.stream()
+                .map(a -> a.getComponent().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Step 4: Batch fetch properties (one query)
+        assignmentRepository.fetchPropertiesForComponents(componentIds);
+
+        // Step 5: Batch fetch options (one query)
+        assignmentRepository.fetchOptionsForComponents(componentIds);
+
+        // Step 6: Now all data is in Hibernate session cache - no lazy loading
         FormWithAssignmentsDTO dto = new FormWithAssignmentsDTO();
         dto.setId(form.getId());
         dto.setName(form.getName());
@@ -119,6 +144,7 @@ public class FormSubmissionService {
         List<FormComponentAssignmentInfoDTO> assignmentInfos = assignments.stream()
                 .map(this::toAssignmentInfoDTO)
                 .collect(Collectors.toList());
+
         dto.setComponentAssignments(assignmentInfos);
 
         return dto;

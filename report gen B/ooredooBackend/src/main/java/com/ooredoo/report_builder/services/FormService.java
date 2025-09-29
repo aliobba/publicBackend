@@ -5,6 +5,7 @@ import com.ooredoo.report_builder.dto.FormBuilderRequestDTO;
 import com.ooredoo.report_builder.dto.FormRequestDTO;
 import com.ooredoo.report_builder.dto.FormResponseDTO;
 import com.ooredoo.report_builder.entity.Form;
+import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.mapper.ComponentPropertyMapper;
 import com.ooredoo.report_builder.mapper.ElementOptionMapper;
@@ -16,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,7 @@ public class FormService {
     private final FormComponentMapper componentMapper;
     private final ComponentPropertyMapper propertyMapper;
     private final ElementOptionMapper optionMapper;
+    private final FormComponentAssignmentRepository assignmentRepository;
 
     public FormService(FormRepository formRepository,
                        FormComponentRepository componentRepository,
@@ -41,7 +44,7 @@ public class FormService {
                        UserRepository userRepository, FormMapper formMapper,
                        FormComponentMapper componentMapper,
                        ComponentPropertyMapper propertyMapper,
-                       ElementOptionMapper optionMapper) {
+                       ElementOptionMapper optionMapper, FormComponentAssignmentRepository assignmentRepository) {
         this.formRepository = formRepository;
         this.componentRepository = componentRepository;
         this.propertyRepository = propertyRepository;
@@ -51,6 +54,7 @@ public class FormService {
         this.componentMapper = componentMapper;
         this.propertyMapper = propertyMapper;
         this.optionMapper = optionMapper;
+        this.assignmentRepository = assignmentRepository;
     }
 
 
@@ -147,10 +151,37 @@ public class FormService {
 
     @Transactional()
     public FormResponseDTO getFormWithAllDetails(Integer formId) {
-        Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
-        return formMapper.toFormResponseDTO(form);
+            // Fetch form basic info
+            Form form = formRepository.findById(formId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+
+            // Fetch active assignments with components (1 query)
+            List<FormComponentAssignment> assignments =
+                    assignmentRepository.findActiveAssignmentsWithComponents(formId);
+
+            if (assignments.isEmpty()) {
+                form.setComponentAssignments(new ArrayList<>());
+                return formMapper.toFormResponseDTO(form);
+            }
+
+            // Extract component IDs
+            List<Integer> componentIds = assignments.stream()
+                    .map(a -> a.getComponent().getId())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // Batch fetch properties (1 query)
+            assignmentRepository.fetchPropertiesForComponents(componentIds);
+
+            // Batch fetch options (1 query)
+            assignmentRepository.fetchOptionsForComponents(componentIds);
+
+            // All data is now in Hibernate session - no lazy loading exceptions
+            form.setComponentAssignments(assignments);
+
+            return formMapper.toFormResponseDTO(form);
+
     }
 
     @Transactional()

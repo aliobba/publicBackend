@@ -1,13 +1,11 @@
 package com.ooredoo.report_builder.mapper;
 
 import com.ooredoo.report_builder.dto.*;
-import com.ooredoo.report_builder.entity.ComponentProperty;
-import com.ooredoo.report_builder.entity.ElementOption;
-import com.ooredoo.report_builder.entity.Form;
-import com.ooredoo.report_builder.entity.FormComponent;
+import com.ooredoo.report_builder.entity.*;
 import com.ooredoo.report_builder.user.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,6 +14,7 @@ import java.util.stream.Collectors;
 public class FormMapper {
 
     private final FormComponentMapper formComponentMapper;
+
 
     public FormMapper(FormComponentMapper formComponentMapper) {
         this.formComponentMapper = formComponentMapper;
@@ -41,15 +40,24 @@ public class FormMapper {
         dto.setUpdatedAt(entity.getUpdatedAt());
         dto.setCreatorId(entity.getCreator() != null ? entity.getCreator().getId() : null);
 
-        // Convert components to DTOs
-        if (entity.getComponents() != null) {
-            List<FormComponentDTO> componentDTOs = entity.getComponents().stream()
-                    .map(this::toFormComponentDTO)
+        // Map active assignments to component DTOs
+        if (entity.getComponentAssignments() != null) {
+            List<FormComponentDTO> componentDTOs = entity.getComponentAssignments().stream()
+                    .filter(FormComponentAssignment::getIsActive)
+                    .sorted(Comparator.comparing(FormComponentAssignment::getOrderIndex))
+                    .map(assignment -> {
+                        FormComponentDTO compDto = formComponentMapper
+                                .toFormComponentDTO(assignment.getComponent());
+                        compDto.setOrderIndex(assignment.getOrderIndex());
+                        compDto.setActive(assignment.getIsActive());
+                        return compDto;
+                    })
                     .collect(Collectors.toList());
+
             dto.setComponents(componentDTOs.stream().map(formComponentMapper::toFormComponent).collect(Collectors.toList()));
         }
 
-        // Convert assigned users to IDs
+        // Map assigned user IDs
         if (entity.getAssignedUsers() != null) {
             Set<Integer> userIds = entity.getAssignedUsers().stream()
                     .map(User::getId)
@@ -59,6 +67,7 @@ public class FormMapper {
 
         return dto;
     }
+
 
     private FormComponentDTO toFormComponentDTO(FormComponent component) {
         if (component == null) return null;

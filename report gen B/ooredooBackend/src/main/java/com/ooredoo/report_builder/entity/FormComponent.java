@@ -73,6 +73,21 @@ public class FormComponent {
         this.createdBy = createdBy;
     }
 
+    public FormComponent(Integer id, ComponentType elementType, String label, Boolean required, Integer orderIndex, Boolean isGlobal, User createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, List<ComponentProperty> properties, List<ElementOption> options, List<FormComponentAssignment> formAssignments) {
+        this.id = id;
+        this.elementType = elementType;
+        this.label = label;
+        this.required = required;
+        this.orderIndex = orderIndex;
+        this.isGlobal = isGlobal;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.properties = properties;
+        this.options = options;
+        this.formAssignments = formAssignments;
+    }
+
     public FormComponent(Integer id, ComponentType elementType, String label, Boolean required, Integer orderIndex, Boolean isGlobal, User createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, Set<Form> forms, List<ComponentProperty> properties, List<ElementOption> options, List<FormComponentAssignment> formAssignments) {
         this.id = id;
         this.elementType = elementType;
@@ -210,7 +225,6 @@ public class FormComponent {
         private User createdBy;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private Set<Form> forms;
         private List<ComponentProperty> properties;
         private List<ElementOption> options;
         private List<FormComponentAssignment> formAssignments;
@@ -263,10 +277,6 @@ public class FormComponent {
             return this;
         }
 
-        public FormComponentBuilder forms(Set<Form> forms) {
-            this.forms = forms;
-            return this;
-        }
 
         public FormComponentBuilder properties(List<ComponentProperty> properties) {
             this.properties = properties;
@@ -284,11 +294,11 @@ public class FormComponent {
         }
 
         public FormComponent build() {
-            return new FormComponent(this.id, this.elementType, this.label, this.required, this.orderIndex, this.isGlobal, this.createdBy, this.createdAt, this.updatedAt, this.forms, this.properties, this.options, this.formAssignments);
+            return new FormComponent(this.id, this.elementType, this.label, this.required, this.orderIndex, this.isGlobal, this.createdBy, this.createdAt, this.updatedAt,  this.properties, this.options, this.formAssignments);
         }
 
         public String toString() {
-            return "FormComponent.FormComponentBuilder(id=" + this.id + ", elementType=" + this.elementType + ", label=" + this.label + ", required=" + this.required + ", orderIndex=" + this.orderIndex + ", isGlobal=" + this.isGlobal + ", createdBy=" + this.createdBy + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", forms=" + this.forms + ", properties=" + this.properties + ", options=" + this.options + ", formAssignments=" + this.formAssignments + ")";
+            return "FormComponent.FormComponentBuilder(id=" + this.id + ", elementType=" + this.elementType + ", label=" + this.label + ", required=" + this.required + ", orderIndex=" + this.orderIndex + ", isGlobal=" + this.isGlobal + ", createdBy=" + this.createdBy + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", properties=" + this.properties + ", options=" + this.options + ", formAssignments=" + this.formAssignments + ")";
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.ooredoo.report_builder.repo;
 
 
+import com.ooredoo.report_builder.entity.FormComponent;
 import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,14 +22,14 @@ public interface FormComponentAssignmentRepository extends JpaRepository<FormCom
 
     Optional<FormComponentAssignment> findByFormIdAndComponentIdAndIsActive(Integer formId, Integer componentId, Boolean isActive);
 
-    // ADDED: Find active assignments with component details (for form submission)
-    @Query("SELECT fca FROM FormComponentAssignment fca " +
+    @Query("SELECT DISTINCT fca FROM FormComponentAssignment fca " +
             "LEFT JOIN FETCH fca.component c " +
             "LEFT JOIN FETCH c.properties " +
             "LEFT JOIN FETCH c.options " +
-            "WHERE fca.form.id = :formId AND fca.isActive = true " +
+            "WHERE fca.form.id = :formId " +
+            "AND fca.isActive = true " +
             "ORDER BY fca.orderIndex ASC")
-    List<FormComponentAssignment> findActiveAssignmentsWithComponentDetails(@Param("formId") Integer formId);
+    List<FormComponentAssignment> findActiveAssignmentsWithDetails(@Param("formId") Integer formId);
 
     // Order management
     @Query("SELECT MAX(fca.orderIndex) FROM FormComponentAssignment fca WHERE fca.form.id = :formId AND fca.isActive = true")
@@ -80,4 +81,26 @@ public interface FormComponentAssignmentRepository extends JpaRepository<FormCom
             "ORDER BY fca.orderIndex ASC")
     List<FormComponentAssignment> findAllActiveAssignmentsByFormAndComponent(@Param("formId") Integer formId, @Param("componentId") Integer componentId);
 
+    @Query("SELECT DISTINCT fca FROM FormComponentAssignment fca " +
+            "JOIN FETCH fca.component c " +
+            "WHERE fca.form.id = :formId " +
+            "AND fca.isActive = true " +
+            "ORDER BY fca.orderIndex ASC")
+    List<FormComponentAssignment> findActiveAssignmentsWithComponents(@Param("formId") Integer formId);
+
+    // Query 2: Batch fetch properties for components
+    @Query("SELECT DISTINCT c FROM FormComponent c " +
+            "LEFT JOIN FETCH c.properties " +
+            "WHERE c.id IN :componentIds")
+    List<FormComponent> fetchPropertiesForComponents(@Param("componentIds") List<Integer> componentIds);
+
+    // Query 3: Batch fetch options for components
+    @Query("SELECT DISTINCT c FROM FormComponent c " +
+            "LEFT JOIN FETCH c.options " +
+            "WHERE c.id IN :componentIds")
+    List<FormComponent> fetchOptionsForComponents(@Param("componentIds") List<Integer> componentIds);
+
+
+    // Fallback: Find without eager fetching
+    List<FormComponentAssignment> findByFormIdAndIsActiveTrueOrderByOrderIndexAsc(Integer formId);
 }

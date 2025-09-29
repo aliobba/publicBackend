@@ -30,7 +30,7 @@ public class FormController {
 
     // === FORM CRUD ===
 
-    @PostMapping
+    @PostMapping("/createForm")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormResponseDTO> createForm(@Valid @RequestBody FormRequestDTO request) {
         User currentUser = userService.getCurrentAuthenticatedUser();
@@ -52,20 +52,20 @@ public class FormController {
         return ResponseEntity.ok(forms);
     }
 
-    @GetMapping("/{formId}")
+    @GetMapping("/FormById/{formId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormResponseDTO> getFormById(@PathVariable Integer formId) {
         return ResponseEntity.ok(formService.getFormWithAllDetails(formId));
     }
 
-    @PutMapping("/{formId}")
+    @PutMapping("/updateForm/{formId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormResponseDTO> updateForm(@PathVariable Integer formId,
                                                       @Valid @RequestBody FormRequestDTO request) {
         return ResponseEntity.ok(formService.updateForm(formId, request));
     }
 
-    @DeleteMapping("/{formId}")
+    @DeleteMapping("/deleteForm/{formId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<MessageResponse> deleteForm(@PathVariable Integer formId) {
         formService.deleteForm(formId);
@@ -74,7 +74,7 @@ public class FormController {
 
     // === COMPONENT ASSIGNMENT TO FORMS ===
 
-    @PostMapping("/{formId}/components")
+    @PostMapping("/addComponentToForm/{formId}/components")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormComponentDTO> addComponentToForm(
             @PathVariable Integer formId,

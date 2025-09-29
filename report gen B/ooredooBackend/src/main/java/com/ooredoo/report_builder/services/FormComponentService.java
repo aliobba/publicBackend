@@ -60,7 +60,7 @@ public class FormComponentService {
     public FormComponentDTO createComponentWithDefaults(FormComponentDTO componentDTO, Integer formId, User creator) {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
-
+        componentDTO.setFormId(formId);
         ComponentType componentType = ComponentType.fromValue(componentDTO.getElementType().getValue());
 
         // Create the component
@@ -70,18 +70,32 @@ public class FormComponentService {
         component.setRequired(componentDTO.getRequired());
         component.setIsGlobal(componentDTO.getIsGlobal());
         component.setCreatedBy(creator);
+        component.getForms().add(form);
 
         FormComponent savedComponent = formComponentRepository.save(component);
 
         // Add default properties if requested
-        /*if (componentDTO.getUseDefaults()) {
+        if (savedComponent.getProperties().isEmpty()||savedComponent.getOptions().isEmpty()) {
+            if (savedComponent.getElementType()
+                    .getValue()
+                    .equals(ComponentType.CHECKBOX) || savedComponent.getElementType()
+                    .getValue()
+                    .equals(ComponentType.RADIO) || savedComponent.getElementType()
+                    .getValue()
+                    .equals(ComponentType.DROPDOWN) ){
+                addDefaultOptions(savedComponent, componentType);
+            } else if (savedComponent.getElementType().equals(ComponentType.FILE_UPLOAD)) {
+
+            }
             addDefaultProperties(savedComponent, componentType);
-            addDefaultOptions(savedComponent, componentType);
-        }*/
+        }
 
         // Assign to form
         Integer maxOrderIndex = getMaxOrderIndexForForm(formId);
-        FormComponentAssignment assignment = new FormComponentAssignment(form, savedComponent, maxOrderIndex + 1);
+        FormComponentAssignment assignment = new FormComponentAssignment();
+        assignment.setForm(form);
+        assignment.setComponent(savedComponent);
+        assignment.setOrderIndex(maxOrderIndex + 1);
         assignmentRepository.save(assignment);
 
         return formComponentMapper.toFormComponentDTO(savedComponent);
@@ -125,7 +139,10 @@ public class FormComponentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
         Integer finalOrderIndex = orderIndex != null ? orderIndex : getMaxOrderIndexForForm(formId) + 1;
-        FormComponentAssignment assignment = new FormComponentAssignment(form, component, finalOrderIndex);
+        FormComponentAssignment assignment = new FormComponentAssignment();
+        assignment.setForm(form);
+        assignment.setComponent(component);
+        assignment.setOrderIndex(finalOrderIndex);
         assignmentRepository.save(assignment);
     }
 

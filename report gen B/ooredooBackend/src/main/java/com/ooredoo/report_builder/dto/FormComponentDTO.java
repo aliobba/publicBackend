@@ -23,12 +23,8 @@ public class FormComponentDTO {
     private List<FormComponentAssignment> formAssignments;
     private LocalDateTime createdAt;
 
-    public FormComponentDTO(ComponentType elementType,
-                            String label, Boolean required,
-                            Integer orderIndex, List<ComponentPropertyDTO> properties,
-                            List<ElementOptionDTO> options, Integer formId, Boolean isGlobal,
-                            User createdBy, List<FormComponentAssignment> formAssignments,
-                            LocalDateTime createdAt) {
+    public FormComponentDTO(Integer id, ComponentType elementType, String label, Boolean required, Integer orderIndex, List<ComponentPropertyDTO> properties, List<ElementOptionDTO> options, Integer formId, Boolean isGlobal, User createdBy, List<FormComponentAssignment> formAssignments, LocalDateTime createdAt, Boolean isActive) {
+        this.id = id;
         this.elementType = elementType;
         this.label = label;
         this.required = required;
@@ -40,7 +36,19 @@ public class FormComponentDTO {
         this.createdBy = createdBy;
         this.formAssignments = formAssignments;
         this.createdAt = createdAt;
+        this.isActive = isActive;
     }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    private Boolean isActive;
+
 
     public FormComponentDTO(Integer id, ComponentType elementType, String label, Boolean required, Integer orderIndex, List<ComponentPropertyDTO> properties, List<ElementOptionDTO> options, Integer formId, Boolean isGlobal, User createdBy, List<FormComponentAssignment> formAssignments) {
         this.id = id;
@@ -167,6 +175,7 @@ public class FormComponentDTO {
     public void setFormId(Integer formId) {
         this.formId = formId;
     }
+
 
     public static class FormComponentDTOBuilder {
         private Integer id;
