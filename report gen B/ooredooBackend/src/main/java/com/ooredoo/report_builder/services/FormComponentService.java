@@ -58,6 +58,7 @@ public class FormComponentService {
 
     @Transactional
     public FormComponentDTO createComponentWithDefaults(FormComponentDTO componentDTO, Integer formId, User creator) {
+
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
         componentDTO.setFormId(formId);
@@ -186,7 +187,7 @@ public class FormComponentService {
                 .findByFormIdAndIsActiveOrderByOrderIndex(formId, true);
 
         return assignments.stream()
-                .map(assignment -> formComponentMapper.toFormComponentDTO(assignment.getComponent()))
+                .map(assignment -> formComponentMapper.toFormComponentDTO(assignment.getComponent(),assignment))
                 .collect(Collectors.toList());
     }
 

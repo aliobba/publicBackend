@@ -6,6 +6,7 @@ import com.ooredoo.report_builder.dto.FormComponentDTO;
 import com.ooredoo.report_builder.entity.ComponentProperty;
 import com.ooredoo.report_builder.entity.ElementOption;
 import com.ooredoo.report_builder.entity.FormComponent;
+import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import com.ooredoo.report_builder.enums.ComponentType;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,39 @@ public class FormComponentMapper {
         return component;
     }
 
+    public FormComponentDTO toFormComponentDTO(FormComponent entity, FormComponentAssignment assignment) {
+        if (entity == null) return null;
+
+        FormComponentDTO dto = new FormComponentDTO();
+        dto.setId(entity.getId());
+        dto.setElementType(entity.getElementType());
+        dto.setLabel(entity.getLabel());
+        dto.setRequired(entity.getRequired());
+        dto.setOrderIndex(assignment.getOrderIndex());
+        dto.setGlobal(entity.getIsGlobal());
+        dto.setCreatedBy(entity.getCreatedBy() != null ? entity.getCreatedBy() : null);
+        dto.setFormId(assignment.getForm().getId());
+        dto.setActive(assignment.getIsActive());
+        dto.setCreatedAt(entity.getCreatedAt());
+
+        // Convert properties
+        if (entity.getProperties() != null) {
+            List<ComponentPropertyDTO> propertyDTOs = entity.getProperties().stream()
+                    .map(this::toComponentPropertyDTO)
+                    .collect(Collectors.toList());
+            dto.setProperties(propertyDTOs);
+        }
+
+        // Convert options
+        if (entity.getOptions() != null) {
+            List<ElementOptionDTO> optionDTOs = entity.getOptions().stream()
+                    .map(this::toElementOptionDTO)
+                    .collect(Collectors.toList());
+            dto.setOptions(optionDTOs);
+        }
+
+        return dto;
+    }
     public FormComponentDTO toFormComponentDTO(FormComponent entity) {
         if (entity == null) return null;
 

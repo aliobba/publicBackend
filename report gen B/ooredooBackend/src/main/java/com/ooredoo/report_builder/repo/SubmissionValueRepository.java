@@ -1,5 +1,6 @@
 package com.ooredoo.report_builder.repo;
 
+import com.ooredoo.report_builder.entity.FormComponent;
 import com.ooredoo.report_builder.entity.FormComponentAssignment;
 import com.ooredoo.report_builder.entity.FormSubmission;
 import com.ooredoo.report_builder.entity.SubmissionValue;
@@ -66,4 +67,24 @@ public interface SubmissionValueRepository extends JpaRepository<SubmissionValue
     // Form submission statistics
     @Query("SELECT sv.assignment.form.id, COUNT(sv) FROM SubmissionValue sv GROUP BY sv.assignment.form.id")
     List<Object[]> getFormSubmissionCounts();
+
+    // Query 1: Fetch submission values with assignments and components
+    @Query("SELECT DISTINCT sv FROM SubmissionValue sv " +
+            "JOIN FETCH sv.assignment a " +
+            "JOIN FETCH a.component c " +
+            "WHERE sv.submission.id = :submissionId")
+    List<SubmissionValue> findBySubmissionIdWithDetails(@Param("submissionId") Integer submissionId);
+
+    // Query 2: Batch fetch properties for components
+    @Query("SELECT DISTINCT c FROM FormComponent c " +
+            "LEFT JOIN FETCH c.properties " +
+            "WHERE c.id IN :componentIds")
+    List<FormComponent> fetchPropertiesForComponents(@Param("componentIds") List<Integer> componentIds);
+
+    // Query 3: Batch fetch options for components
+    @Query("SELECT DISTINCT c FROM FormComponent c " +
+            "LEFT JOIN FETCH c.options " +
+            "WHERE c.id IN :componentIds")
+    List<FormComponent> fetchOptionsForComponents(@Param("componentIds") List<Integer> componentIds);
+
 }

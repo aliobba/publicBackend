@@ -1,5 +1,7 @@
 package com.ooredoo.report_builder.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Where;
@@ -37,6 +39,7 @@ public class Form {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
+    @JsonIgnoreProperties({"createdForms"})
     private User creator;
 
     // ManyToMany relationship for component reusability
@@ -48,12 +51,14 @@ public class Form {
     )
     @Where(clause = "is_active = true") // Only active assignments
     @OrderBy("orderIndex ASC")
+    @JsonIgnore
     private List<FormComponent> components = new ArrayList<>();
 
     // Direct access to assignments for management
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
     @Where(clause = "is_active = true")
     @OrderBy("orderIndex ASC")
+    @JsonIgnore
     private List<FormComponentAssignment> componentAssignments = new ArrayList<>();
 
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
@@ -65,6 +70,7 @@ public class Form {
             joinColumns = @JoinColumn(name = "form_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnore
     private Set<User> assignedUsers = new HashSet<>();
 
     // Future: Organizational hierarchy assignments
@@ -72,6 +78,7 @@ public class Form {
     @JoinTable(name = "form_assigned_enterprises",
             joinColumns = @JoinColumn(name = "form_id"),
             inverseJoinColumns = @JoinColumn(name = "enterprise_id"))
+    @JsonIgnore
     private Set<Enterprise> assignedEnterprises = new HashSet<>();
 
     public Form(String name, String description, User creator) {

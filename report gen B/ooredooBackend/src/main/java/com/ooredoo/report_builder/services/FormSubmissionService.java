@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,44 +52,66 @@ public class FormSubmissionService {
 
     @Transactional
     public FormSubmissionResponseDTO submitForm(Integer formId, User submitter, Map<Integer, String> assignmentValues) {
+// Step 1: Fetch form
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
 
+        // Step 2: Fetch active assignments with components
+        List<FormComponentAssignment> activeAssignments =
+                assignmentRepository.findActiveAssignmentsWithComponents(formId);
+
+        if (activeAssignments.isEmpty()) {
+            throw new FormBuilderException("Form has no active components");
+        }
+
+        // Step 3: Authorization check
         if (!canUserSubmitForm(form, submitter)) {
             throw new FormBuilderException("User is not authorized to submit this form");
         }
 
-        List<FormComponentAssignment> activeAssignments = assignmentRepository
-                .findActiveAssignmentsWithDetails(formId);
+        // Step 4: Validate required fields BEFORE saving
+        validateRequiredAssignments(activeAssignments, assignmentValues);
 
-        FormSubmission submission = new FormSubmission(form, submitter);
+        // Step 5: Create submission
+        FormSubmission submission = new FormSubmission();
+        submission.setForm(form);
+        submission.setSubmittedBy(submitter);
+        submission.setSubmittedAt(LocalDateTime.now());
         submission = submissionRepository.save(submission);
 
+        // Step 6: Process submission values
         if (assignmentValues != null && !assignmentValues.isEmpty()) {
             for (Map.Entry<Integer, String> entry : assignmentValues.entrySet()) {
                 Integer assignmentId = entry.getKey();
                 String value = entry.getValue();
 
-                if (value == null || value.trim().isEmpty()) {
-                    continue;
-                }
-
+                // Find assignment
                 FormComponentAssignment assignment = activeAssignments.stream()
                         .filter(a -> a.getId().equals(assignmentId))
                         .findFirst()
-                        .orElseThrow(() -> new ResourceNotFoundException("Assignment not found: " + assignmentId));
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Assignment not found: " + assignmentId));
 
+                // Validate assignment belongs to this form
                 if (!assignment.getForm().getId().equals(formId)) {
-                    throw new ValidationException("Assignment " + assignmentId + " does not belong to form " + formId);
+                    throw new ValidationException(
+                            "Assignment " + assignmentId + " does not belong to form " + formId);
                 }
 
+                // Skip empty non-required fields
                 FormComponent component = assignment.getComponent();
-                if (component.getRequired() && (value == null || value.trim().isEmpty())) {
-                    throw new ValidationException("Field '" + component.getLabel() + "' is required");
+                if (value == null || value.trim().isEmpty()) {
+                    if (component.getRequired()) {
+                        throw new ValidationException(
+                                "Required field '" + component.getLabel() + "' cannot be empty");
+                    }
+                    continue;
                 }
 
+                // Validate value format
                 validateComponentValue(component, value);
 
+                // Save submission value
                 SubmissionValue submissionValue = new SubmissionValue();
                 submissionValue.setSubmission(submission);
                 submissionValue.setAssignment(assignment);
@@ -97,9 +120,41 @@ public class FormSubmissionService {
             }
         }
 
-        validateRequiredAssignments(activeAssignments, assignmentValues);
+        // Step 7: Fetch submission with all details for response
+        return getSubmissionDetails(submission.getId());
+    }
 
-        return submissionMapper.toFormSubmissionResponseDTO(submission);
+    // Separate method to fetch submission with all details
+    @Transactional()
+    public FormSubmissionResponseDTO getSubmissionDetails(Integer submissionId) {
+        // Fetch submission
+        FormSubmission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Submission not found: " + submissionId));
+
+        // Fetch values with assignments and components
+        List<SubmissionValue> values =
+                valueRepository.findBySubmissionIdWithDetails(submissionId);
+
+        if (values.isEmpty()) {
+            // No values - return basic submission info
+            return submissionMapper.toFormSubmissionResponseDTO(submission, new ArrayList<>());
+        }
+
+        // Extract component IDs
+        List<Integer> componentIds = values.stream()
+                .map(sv -> sv.getAssignment().getComponent().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Batch fetch properties
+        valueRepository.fetchPropertiesForComponents(componentIds);
+
+        // Batch fetch options
+        valueRepository.fetchOptionsForComponents(componentIds);
+
+        // Now map to DTO (all data is in session)
+        return submissionMapper.toFormSubmissionResponseDTO(submission, values);
     }
 
     // === FORM STRUCTURE FOR SUBMISSIONS ===

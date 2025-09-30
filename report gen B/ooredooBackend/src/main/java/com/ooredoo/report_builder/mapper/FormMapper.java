@@ -52,7 +52,7 @@ public class FormMapper {
                         compDto.setActive(assignment.getIsActive());
                         return compDto;
                     })
-                    .collect(Collectors.toList());
+                    .toList();
 
             dto.setComponents(componentDTOs.stream().map(formComponentMapper::toFormComponent).collect(Collectors.toList()));
         }

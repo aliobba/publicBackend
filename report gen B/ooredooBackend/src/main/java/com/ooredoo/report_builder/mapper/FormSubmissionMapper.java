@@ -15,6 +15,43 @@ import java.util.stream.Collectors;
 @Component
 public class FormSubmissionMapper {
 
+    public FormSubmissionResponseDTO toFormSubmissionResponseDTO(
+            FormSubmission submission,
+            List<SubmissionValue> values) {
+
+        FormSubmissionResponseDTO dto = new FormSubmissionResponseDTO();
+        dto.setId(submission.getId());
+        dto.setFormId(submission.getForm().getId());
+        dto.setFormName(submission.getForm().getName());
+        dto.setSubmittedById(submission.getSubmittedBy().getId());
+        dto.setSubmittedByName(submission.getSubmittedBy().getFirstname() + " " +
+                submission.getSubmittedBy().getLastname());
+        dto.setSubmittedAt(submission.getSubmittedAt());
+
+        // Map values (no lazy loading because we pre-fetched)
+        List<SubmissionValueDTO> valueDTOs = values.stream()
+                .map(this::toSubmissionValueResponseDTO)
+                .collect(Collectors.toList());
+
+        dto.setValues(valueDTOs);
+
+        return dto;
+    }
+
+    private SubmissionValueDTO toSubmissionValueResponseDTO(SubmissionValue value) {
+        SubmissionValueDTO dto = new SubmissionValueDTO();
+        dto.setId(value.getId());
+        dto.setValue(value.getValue());
+        dto.setAssignmentId(value.getAssignment().getId());
+
+        FormComponent component = value.getAssignment().getComponent();
+        dto.setComponentId(component.getId());
+        dto.setComponentLabel(component.getLabel());
+        dto.setComponentType(component.getElementType().getValue());
+
+        return dto;
+    }
+
     public FormSubmissionResponseDTO toFormSubmissionResponseDTO(FormSubmission entity) {
         if (entity == null) return null;
 

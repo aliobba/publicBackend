@@ -78,6 +78,7 @@ public class User implements UserDetails, Principal {
 
     // Forms directly assigned to user (many-to-many)
     @ManyToMany(mappedBy = "assignedUsers", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Form> assignedForms = new HashSet<>();
 
     // User type (POS or regular user)

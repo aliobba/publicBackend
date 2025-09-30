@@ -21,6 +21,7 @@ public class FormSubmissionResponseDTO {
     private Boolean canDelete;
 
     // Constructors
+
     public FormSubmissionResponseDTO() {
         this.values = new ArrayList<>();
     }
