@@ -31,9 +31,9 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @GetMapping("/sectors/{sectorId}")
-    public ResponseEntity<List<User>> getAllUsersInSector(@PathVariable Integer sectorId) {
-        return ResponseEntity.ok(userService.findAllFromSector(sectorId));
+    @GetMapping("/regions/{regionId}")
+    public ResponseEntity<List<User>> getAllUsersInRegion(@PathVariable Integer regionId) {
+        return ResponseEntity.ok(userService.findAllFromRegion(regionId));
     }
 
 
@@ -167,47 +167,6 @@ public class UserController {
     public List<User> getUsersByPOS(@PathVariable int posId) {
         return userService.getUsersByPOS(posId);
     }
-/*
-
-
-
-    @GetMapping("/enterprise/{enterpriseId}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersByEnterprise(@PathVariable int enterpriseId) {
-        return userService.getUsersByEnterprise(enterpriseId);
-    }
-    
-    @GetMapping("/sector/{sectorId}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersBySector(@PathVariable int sectorId) {
-        return userService.getUsersBySector(sectorId);
-    }
-    
-    @GetMapping("/zone/{zoneId}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersByZone(@PathVariable int zoneId) {
-        return userService.getUsersByZone(zoneId);
-    }
-    
-    @GetMapping("/region/{regionId}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersByRegion(@PathVariable int regionId) {
-        return userService.getUsersByRegion(regionId);
-    }
-    
-    @GetMapping("/pos/{posId}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersByPOS(@PathVariable int posId) {
-        return userService.getUsersByPOS(posId);
-    }
-    
-    @GetMapping("/type/{userType}")
-    @PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
-    public List<UserResponse> getUsersByUserType(@PathVariable UserType userType) {
-        return userService.getUsersByUserType(userType);
-    }
-
-    }*/
 
     @PostMapping("/activate")
     public ResponseEntity<MessageResponse> activateAccount(@RequestParam("token") String token) throws MessagingException {
@@ -284,7 +243,6 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
-
 
     @DeleteMapping("/{userId}/roles/all")
     public ResponseEntity<User> removeAllRolesFromUser(@PathVariable Integer userId) {

@@ -1,7 +1,9 @@
 package com.ooredoo.report_builder.controller;
 
+import com.ooredoo.report_builder.entity.POS;
 import com.ooredoo.report_builder.entity.Sector;
 import com.ooredoo.report_builder.entity.Zone;
+import com.ooredoo.report_builder.services.PosService;
 import com.ooredoo.report_builder.services.SectorService;
 import com.ooredoo.report_builder.services.ZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class SectorController {
     private SectorService sectorService;
     @Autowired
     private ZoneService zoneService;
+
+    @Autowired
+    private PosService posService;
 
     @GetMapping
     public ResponseEntity<List<Sector>> getAllSectors() {
@@ -44,9 +49,14 @@ public class SectorController {
         return ResponseEntity.ok(sectorService.findSectorsWithoutHead());
     }
 
-    @GetMapping("/zoneBySector/{sectorId}")
-    public ResponseEntity<List<Zone>> getZonesBySectorId(@PathVariable Integer sectorId) {
-        return ResponseEntity.ok(zoneService.findBySectorId(sectorId));
+    @GetMapping("/SectorByZone/{zoneId}")
+    public ResponseEntity<List<Sector>> getSectorByZoneId(@PathVariable Integer zoneId) {
+        return ResponseEntity.ok(sectorService.findByZoneId(zoneId));
+    }
+
+    @GetMapping("/posBySector/{sectorId}")
+    public ResponseEntity<List<POS>> getPOSBySectorId(@PathVariable Integer sectorId) {
+        return ResponseEntity.ok(posService.findBySectorId(sectorId));
     }
 
     @PostMapping("/create-Sector")

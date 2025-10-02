@@ -6,7 +6,7 @@ import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.mapper.ZoneMapper;
-import com.ooredoo.report_builder.repo.SectorRepository;
+import com.ooredoo.report_builder.repo.RegionRepository;
 import com.ooredoo.report_builder.repo.UserRepository;
 import com.ooredoo.report_builder.repo.ZoneRepository;
 import com.ooredoo.report_builder.user.User;
@@ -26,18 +26,14 @@ import java.util.stream.Collectors;
 public class ZoneService {
 
 
-    private final SectorRepository sectorRepository;
+    private final RegionRepository regionRepository;
     private final UserRepository userRepository;
-    private final ZoneMapper zoneMapper;
-
-
     @Autowired
     private ZoneRepository zoneRepository;
 
-    public ZoneService(SectorRepository sectorRepository, UserRepository userRepository, ZoneMapper zoneMapper) {
-        this.sectorRepository = sectorRepository;
+    public ZoneService(RegionRepository regionRepository, UserRepository userRepository) {
+        this.regionRepository = regionRepository;
         this.userRepository = userRepository;
-        this.zoneMapper = zoneMapper;
     }
 
     public List<Zone> findAll() {
@@ -48,19 +44,20 @@ public class ZoneService {
         return zoneRepository.findById(id);
     }
 
-    public List<Zone> findBySectorId(Integer sectorId) {
-        return zoneRepository.findBySectorId(sectorId);
+    public List<Zone> findByRegionId(Integer regionId) {
+        return zoneRepository.findByRegionId(regionId);
     }
+
 
     public Zone save(Zone zone) {
         User manager = userRepository.findById(zone.getHeadOfZone().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
-        Sector  sector = sectorRepository.findById(zone.getSector().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Sector not found"));
+        Region  region = regionRepository.findById(zone.getRegion().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Region not found"));
         Zone zone1 = Zone.builder()
                 .name(zone.getName())
                 .headOfZone(manager)
-                .sector(sector)
+                .region(region)
                 .build();
         validateZoneHead(zone1);
         return zoneRepository.save(zone1);
@@ -89,7 +86,7 @@ public class ZoneService {
 
             // Check if user is already head of another sector
             if (zone.getId() == null || !zone.getId().equals(getCurrentZoneIdForHead(zone.getHeadOfZone().getId()))) {
-                if (sectorRepository.existsByHeadOfSectorId(zone.getHeadOfZone().getId())) {
+                if (regionRepository.existsByHeadOfRegionId(zone.getHeadOfZone().getId())) {
                     throw new IllegalStateException("User is already assigned as head of another zone");
                 }
             }
@@ -108,8 +105,8 @@ public class ZoneService {
 
     private void validateZoneDeletion(Integer zoneId) {
         Optional<Zone> zone = findById(zoneId);
-        if (zone.isPresent() && !zone.get().getRegions().isEmpty()) {
-            throw new IllegalStateException("Cannot delete zone: has regions assigned. Reassign or delete regions first.");
+        if (zone.isPresent() && !zone.get().getSectors().isEmpty()) {
+            throw new IllegalStateException("Cannot delete zone: has Sectors assigned. Reassign or delete sectors first.");
         }
     }
 
@@ -195,12 +192,12 @@ public class ZoneService {
         return zoneMapper.toDto(zoneRepository.save(zone));
     }*/
 
-    // 🔹 Get all regions in zone
-    public List<String> getZoneRegions(Integer zoneId) {
+    // 🔹 Get all sectors in zone
+    public List<String> getZoneSector(Integer zoneId) {
         Zone zone = zoneRepository.findById(zoneId)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone not found"));
 
-        Set<Region> regions = zone.getRegions();
-        return regions.stream().map(Region::getName).collect(Collectors.toList());
+        Set<Sector> sectors = zone.getSectors();
+        return sectors.stream().map(Sector::getName).collect(Collectors.toList());
     }
 }

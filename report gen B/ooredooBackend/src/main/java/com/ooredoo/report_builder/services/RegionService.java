@@ -6,8 +6,8 @@ import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.RegionRepository;
+import com.ooredoo.report_builder.repo.SectorRepository;
 import com.ooredoo.report_builder.repo.UserRepository;
-import com.ooredoo.report_builder.repo.ZoneRepository;
 import com.ooredoo.report_builder.user.User;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class RegionService {
     @Autowired
     private UserRepository  userRepository;
     @Autowired
-    private ZoneRepository zoneRepository;
+    private SectorRepository sectorRepository ;
 
     public RegionService() {
     }
@@ -39,19 +39,12 @@ public class RegionService {
         return regionRepository.findById(id);
     }
 
-    public List<Region> findByZoneId(Integer zoneId) {
-        return regionRepository.findByZoneId(zoneId);
-    }
-
     public Region save(Region region) {
         User manager = userRepository.findById(region.getHeadOfRegion().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
-        Zone zone = zoneRepository.findById(region.getZone().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Zone not found"));
         Region newRegion = Region.builder()
                 .name(region.getName())
                 .headOfRegion(manager)
-                .zone(zone)
                 .build();
         validateRegionHead(newRegion);
         return regionRepository.save(newRegion);
@@ -93,21 +86,21 @@ public class RegionService {
 
     private void validateRegionDeletion(Integer regionId) {
         Optional<Region> region = findById(regionId);
-        if (region.isPresent() && !region.get().getPosInRegion().isEmpty()) {
-            throw new IllegalStateException("Cannot delete region: has POS assigned. Reassign or delete POS first.");
+        if (region.isPresent() && !region.get().getZones().isEmpty()) {
+            throw new IllegalStateException("Cannot delete region: has Zone assigned. Reassign or delete Zone first.");
         }
     }
 
 /*
     private final RegionRepository regionRepository;
-    private final ZoneRepository zoneRepository;
+    private final sectorRepository sectorRepository;
     private final UserRepository userRepository;
     private final RegionMapper regionMapper;
 
     // 🔹 Create region under zone
     @Transactional
     public RegionResponseDTO createRegion(Integer zoneId, RegionRequestDTO request) {
-        Zone zone = zoneRepository.findById(zoneId)
+        Zone zone = sectorRepository.findById(zoneId)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone not found"));
 
         Region region = regionMapper.toEntity(request);

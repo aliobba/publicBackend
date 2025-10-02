@@ -2,7 +2,9 @@ package com.ooredoo.report_builder.controller;
 
 import com.ooredoo.report_builder.entity.POS;
 import com.ooredoo.report_builder.entity.Region;
+import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.repo.POSRepository;
+import com.ooredoo.report_builder.repo.ZoneRepository;
 import com.ooredoo.report_builder.services.PosService;
 import com.ooredoo.report_builder.services.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ public class RegionController {
     @Autowired
     private RegionService regionService;
     @Autowired
-    private PosService posService;
+    private ZoneRepository zoneRepository;
 
 
     @GetMapping
@@ -35,13 +37,9 @@ public class RegionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/regionByZone/zones/{zoneId}")
-    public ResponseEntity<List<Region>> getRegionsByZoneId(@PathVariable Integer zoneId) {
-        return ResponseEntity.ok(regionService.findByZoneId(zoneId));
-    }
-    @GetMapping("/posByRegion/{regionId}")
-    public ResponseEntity<List<POS>> getPOSByRegionId(@PathVariable Integer regionId) {
-        return ResponseEntity.ok(posService.findByRegionId(regionId));
+    @GetMapping("/zoneByRegion/{regionId}")
+    public ResponseEntity<List<Zone>> getZonesByRegionId(@PathVariable Integer regionId) {
+        return ResponseEntity.ok(zoneRepository.findByRegionId(regionId));
     }
 
     /*@GetMapping("/without-head")

@@ -11,9 +11,10 @@ import java.util.Optional;
 public interface POSRepository extends JpaRepository<POS, Integer> {
     Optional<POS> findByName(String name);
     boolean existsByName(String name);
-    List<POS> findByRegionId(Integer regionId);
+    List<POS> findBySectorId(Integer sectorId);
     boolean existsByHeadOfPOSId(Integer userId);
     List<POS> findByHeadOfPOSIsNull();
     Optional<POS> findByHeadOfPOSId(Integer headOfPOSId); // head of POS
+    Optional<POS> findByCodePOS(String codePOS);
     //List<POS> findByUsers_Id(Integer userId);
     }

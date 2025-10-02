@@ -84,9 +84,11 @@ public class FormService {
 
     @Transactional
     public void deleteForm(Integer formId) {
-        if (!formRepository.existsById(formId)) {
-            throw new ResourceNotFoundException("Form not found with id: " + formId);
-        }
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new ResourceNotFoundException("Form not found with id: " + formId));
+
+        form.getComponentAssignments().removeAll(form.getComponentAssignments());
+
         formRepository.deleteById(formId);
     }
 

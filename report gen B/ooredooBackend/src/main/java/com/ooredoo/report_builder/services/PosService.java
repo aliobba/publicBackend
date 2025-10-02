@@ -2,11 +2,13 @@ package com.ooredoo.report_builder.services;
 
 import com.ooredoo.report_builder.entity.POS;
 import com.ooredoo.report_builder.entity.Region;
+import com.ooredoo.report_builder.entity.Sector;
 import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.POSRepository;
 import com.ooredoo.report_builder.repo.RegionRepository;
+import com.ooredoo.report_builder.repo.SectorRepository;
 import com.ooredoo.report_builder.repo.UserRepository;
 import com.ooredoo.report_builder.user.User;
 import jakarta.transaction.Transactional;
@@ -26,7 +28,7 @@ public class PosService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RegionRepository regionRepository;
+    private SectorRepository sectorRepository;
 
     public PosService() {
     }
@@ -39,8 +41,8 @@ public class PosService {
         return posRepository.findById(id);
     }
 
-    public List<POS> findByRegionId(Integer regionId) {
-        return posRepository.findByRegionId(regionId);
+    public List<POS> findBySectorId(Integer sectorId) {
+        return posRepository.findBySectorId(sectorId);
     }
 
     public Optional<POS> findByHeadOfPOSId(Integer headOfPOSId) {
@@ -50,12 +52,12 @@ public class PosService {
     public POS save(POS pos) {
         User manager = userRepository.findById(pos.getHeadOfPOS().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
-        Region region = regionRepository.findById(pos.getRegion().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Region not found"));
+        Sector sector = sectorRepository.findById(pos.getSector().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("sector not found"));
         POS pos1  = POS.builder()
                 .name(pos.getName())
                 .headOfPOS(manager)
-                .region(region)
+                .sector(sector)
                 .build();
         validatePOSHead(pos1);
         return posRepository.save(pos1);

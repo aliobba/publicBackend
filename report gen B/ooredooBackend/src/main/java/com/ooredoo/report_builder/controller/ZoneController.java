@@ -33,14 +33,9 @@ public class ZoneController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/zoneBySector/sectors/{sectorId}")
-    public ResponseEntity<List<Zone>> getZonesBySectorId(@PathVariable Integer sectorId) {
-        return ResponseEntity.ok(zoneService.findBySectorId(sectorId));
-    }
-
-    @GetMapping("/regionByZone/{zoneId}")
-    public ResponseEntity<List<Region>> getRegionsByZoneId(@PathVariable Integer zoneId) {
-        return ResponseEntity.ok(regionService.findByZoneId(zoneId));
+    @GetMapping("/zoneByRegion/regions/{regionId}")
+    public ResponseEntity<List<Zone>> getZonesByRegionId(@PathVariable Integer regionId) {
+        return ResponseEntity.ok(zoneService.findByRegionId(regionId));
     }
 
     /*@GetMapping("/without-head")

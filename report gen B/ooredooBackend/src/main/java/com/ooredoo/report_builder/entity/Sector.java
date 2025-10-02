@@ -1,5 +1,6 @@
 package com.ooredoo.report_builder.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,8 +26,14 @@ public class Sector {
     @JoinColumn(name = "id_head_of_sector")
     private User headOfSector;
 
-    @OneToMany(mappedBy = "sector", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Zone> zones = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "zone_id")
+    @JsonIgnoreProperties({"sectors"})
+    private Zone zone;
+
+    @OneToMany(mappedBy = "sector", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<POS> posInSector = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -35,11 +42,12 @@ public class Sector {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public Sector(Integer id, String name, User headOfSector, Set<Zone> zones, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Sector(Integer id, String name, User headOfSector, Zone zone, Set<POS> posInSector, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.headOfSector = headOfSector;
-        this.zones = zones;
+        this.zone = zone;
+        this.posInSector = posInSector;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -59,13 +67,16 @@ public class Sector {
         return this.name;
     }
 
-
     public User getHeadOfSector() {
         return this.headOfSector;
     }
 
-    public Set<Zone> getZones() {
-        return this.zones;
+    public Zone getZone() {
+        return this.zone;
+    }
+
+    public Set<POS> getPosInSector() {
+        return this.posInSector;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -84,13 +95,17 @@ public class Sector {
         this.name = name;
     }
 
-
     public void setHeadOfSector(User headOfSector) {
         this.headOfSector = headOfSector;
     }
 
-    public void setZones(Set<Zone> zones) {
-        this.zones = zones;
+    @JsonIgnoreProperties({"sectors"})
+    public void setZone(Zone zone) {
+        this.zone = zone;
+    }
+
+    public void setPosInSector(Set<POS> posInSector) {
+        this.posInSector = posInSector;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
@@ -104,9 +119,9 @@ public class Sector {
     public static class SectorBuilder {
         private Integer id;
         private String name;
-        private Enterprise enterprise;
         private User headOfSector;
-        private Set<Zone> zones;
+        private Zone zone;
+        private Set<POS> posInSector;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -128,8 +143,14 @@ public class Sector {
             return this;
         }
 
-        public SectorBuilder zones(Set<Zone> zones) {
-            this.zones = zones;
+        @JsonIgnoreProperties({"sectors"})
+        public SectorBuilder zone(Zone zone) {
+            this.zone = zone;
+            return this;
+        }
+
+        public SectorBuilder posInSector(Set<POS> posInSector) {
+            this.posInSector = posInSector;
             return this;
         }
 
@@ -144,11 +165,11 @@ public class Sector {
         }
 
         public Sector build() {
-            return new Sector(this.id, this.name, this.headOfSector, this.zones, this.createdAt, this.updatedAt);
+            return new Sector(this.id, this.name, this.headOfSector, this.zone, this.posInSector, this.createdAt, this.updatedAt);
         }
 
         public String toString() {
-            return "Sector.SectorBuilder(id=" + this.id + ", name=" + this.name + ", headOfSector=" + this.headOfSector.getId() + ", zones=" + this.zones + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
+            return "Sector.SectorBuilder(id=" + this.id + ", name=" + this.name + ", headOfSector=" + this.headOfSector + ", zone=" + this.zone + ", posInSector=" + this.posInSector + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.ooredoo.report_builder.services;
 
+import com.ooredoo.report_builder.entity.Region;
 import com.ooredoo.report_builder.entity.Sector;
+import com.ooredoo.report_builder.entity.Zone;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.SectorRepository;
 import com.ooredoo.report_builder.repo.UserRepository;
+import com.ooredoo.report_builder.repo.ZoneRepository;
 import com.ooredoo.report_builder.user.User;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,8 @@ import java.util.Set;
 public class SectorService {
     @Autowired
     private SectorRepository sectorRepository;
+    @Autowired
+    private ZoneRepository zoneRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -36,15 +41,22 @@ public class SectorService {
         return sectorRepository.findById(id);
     }
 
-   /* public List<Sector> findByEnterpriseId(Integer enterpriseId) {
-        return sectorRepository.findByEnterpriseId(enterpriseId);
-    }*/
-
 
     public Sector save(Sector sector) {
-
+        User manager = userRepository.findById(sector.getHeadOfSector().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Manager not found"));
+        Zone zone = zoneRepository.findById(sector.getZone().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Zone not found"));
         validateSectorHead(sector);
+        Sector newSector = Sector.builder()
+                .name(sector.getName())
+                .headOfSector(manager)
+                .zone(zone)
+                .build();
         return sectorRepository.save(sector);
+    }
+    public List<Sector> findByZoneId(Integer zoneId) {
+        return sectorRepository.findByZoneId(zoneId);
     }
 
     public void deleteById(Integer id) {
@@ -87,8 +99,8 @@ public class SectorService {
 
     private void validateSectorDeletion(Integer sectorId) {
         Optional<Sector> sector = findById(sectorId);
-        if (sector.isPresent() && !sector.get().getZones().isEmpty()) {
-            throw new IllegalStateException("Cannot delete sector: has zones assigned. Reassign or delete zones first.");
+        if (sector.isPresent() && !sector.get().getPosInSector().isEmpty()) {
+            throw new IllegalStateException("Cannot delete sector: has POS assigned. Reassign or delete POS first.");
         }
     }
 /*

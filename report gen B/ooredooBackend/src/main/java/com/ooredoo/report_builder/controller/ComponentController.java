@@ -48,13 +48,13 @@ public class ComponentController {
 
     // === COMPONENT CRUD ===
 
-    @GetMapping("/{componentId}")
+    @GetMapping("/getComponentById/{componentId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormComponentDTO> getComponentById(@PathVariable Integer componentId) {
         return ResponseEntity.ok(componentService.getComponentById(componentId));
     }
 
-    @PutMapping("/{componentId}")
+    @PutMapping("/updateComponent/{componentId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<FormComponentDTO> updateComponent(
             @PathVariable Integer componentId,
@@ -64,7 +64,7 @@ public class ComponentController {
         return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{componentId}")
+    @DeleteMapping("/deleteComponent/{componentId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<MessageResponse> deleteComponent(@PathVariable Integer componentId) {
         componentService.deleteComponent(componentId);
@@ -100,7 +100,7 @@ public class ComponentController {
 
     // === COMPONENT PROPERTIES ===
 
-    @PostMapping("/{componentId}/properties")
+    @PostMapping("/addComponentProperty/{componentId}/properties")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<ComponentPropertyDTO> addComponentProperty(
             @PathVariable Integer componentId,
@@ -110,7 +110,7 @@ public class ComponentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @GetMapping("/{componentId}/properties")
+    @GetMapping("/getComponentProperties/{componentId}/properties")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<List<ComponentPropertyDTO>> getComponentProperties(@PathVariable Integer componentId) {
         return ResponseEntity.ok(propertyService.getPropertiesByComponentId(componentId));
@@ -135,7 +135,7 @@ public class ComponentController {
 
     // === COMPONENT OPTIONS ===
 
-    @PostMapping("/{componentId}/options")
+    @PostMapping("/addElementOption/{componentId}/options")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<ElementOptionDTO> addElementOption(
             @PathVariable Integer componentId,
@@ -155,7 +155,7 @@ public class ComponentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @GetMapping("/{componentId}/options")
+    @GetMapping("/getComponentOptions/{componentId}/options")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<List<ElementOptionDTO>> getComponentOptions(@PathVariable Integer componentId) {
         return ResponseEntity.ok(optionService.getOptionsByComponentId(componentId));
@@ -181,7 +181,7 @@ public class ComponentController {
         return ResponseEntity.ok(reordered);
     }
 
-    @DeleteMapping("/options/{optionId}")
+    @DeleteMapping("/deleteElementOption/options/{optionId}")
     //@PreAuthorize("hasAnyAuthority('MAIN_ADMIN', 'DEPARTMENT_ADMIN')")
     public ResponseEntity<MessageResponse> deleteElementOption(@PathVariable Integer optionId) {
         optionService.deleteOption(optionId);

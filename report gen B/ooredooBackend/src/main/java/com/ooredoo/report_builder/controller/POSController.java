@@ -29,12 +29,12 @@ public class POSController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/posByRegion/region/{regionId}")
-    public ResponseEntity<List<POS>> getPOSByRegionId(@PathVariable Integer regionId) {
-        return ResponseEntity.ok(posService.findByRegionId(regionId));
+    @GetMapping("/posBySector/sector/{sectorId}")
+    public ResponseEntity<List<POS>> getPOSBySectorId(@PathVariable Integer sectorId) {
+        return ResponseEntity.ok(posService.findBySectorId(sectorId));
     }
 
-    @GetMapping("/users/{regionId}")
+    @GetMapping("/users/{headOfPOSId}")
     public ResponseEntity<Optional<POS>> getPOSByHeadId(@PathVariable Integer headOfPOSId) {
         return ResponseEntity.ok(posService.findByHeadOfPOSId(headOfPOSId));
     }

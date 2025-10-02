@@ -17,6 +17,7 @@ public interface SectorRepository extends JpaRepository<Sector, Integer> {
     boolean existsByName(String name);
     List<Sector> findByHeadOfSectorIsNull();
     boolean existsByHeadOfSectorId(Integer userId);
+    List<Sector> findByZoneId(Integer zoneId);
 
 
     //List<Sector> findByHeadOfSectorIsNull();

@@ -7,7 +7,9 @@ public enum UserType {
     HEAD_OF_ZONE("HEAD_OF_ZONE"),
     HEAD_OF_REGION("HEAD_OF_REGION"),
     HEAD_OF_POS("HEAD_OF_POS"),
+    COMMERCIAL_POS("COMMERCIAL_POS"),
     USER_ADMIN("USER_ADMIN");
+
 
 
     private final String value;

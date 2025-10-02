@@ -22,6 +22,10 @@ public class POS {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, unique = true)
+    private String codePOS;
+
     // POS Manager
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_head_OfPOS")
@@ -29,9 +33,9 @@ public class POS {
 
     // Region this POS belongs to
     @ManyToOne
-    @JoinColumn(name = "region_id")
-    @JsonIgnoreProperties({"posInRegion"})
-    private Region region;
+    @JoinColumn(name = "sector_id")
+    @JsonIgnoreProperties({"posInSector"})
+    private Sector sector;
 
     @OneToMany(mappedBy = "pos")
     private Set<User> users = new HashSet<>();
@@ -45,11 +49,14 @@ public class POS {
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
-    public POS(Integer id, String name, User headOfPOS, Region region, LocalDateTime createdAt, LocalDateTime updatedAt) {
+
+    public POS(Integer id, String name, String codePOS, User headOfPOS, Sector sector, Set<User> users, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
+        this.codePOS = codePOS;
         this.headOfPOS = headOfPOS;
-        this.region = region;
+        this.sector = sector;
+        this.users = users;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -69,12 +76,20 @@ public class POS {
         return this.name;
     }
 
+    public String getCodePOS() {
+        return this.codePOS;
+    }
+
     public User getHeadOfPOS() {
         return this.headOfPOS;
     }
 
-    public Region getRegion() {
-        return this.region;
+    public Sector getSector() {
+        return this.sector;
+    }
+
+    public Set<User> getUsers() {
+        return this.users;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -93,12 +108,21 @@ public class POS {
         this.name = name;
     }
 
+    public void setCodePOS(String codePOS) {
+        this.codePOS = codePOS;
+    }
+
     public void setHeadOfPOS(User headOfPOS) {
         this.headOfPOS = headOfPOS;
     }
 
-    public void setRegion(Region region) {
-        this.region = region;
+    @JsonIgnoreProperties({"posInSector"})
+    public void setSector(Sector sector) {
+        this.sector = sector;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
@@ -112,8 +136,10 @@ public class POS {
     public static class POSBuilder {
         private Integer id;
         private String name;
+        private String codePOS;
         private User headOfPOS;
-        private Region region;
+        private Sector sector;
+        private Set<User> users;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -130,13 +156,24 @@ public class POS {
             return this;
         }
 
+        public POSBuilder codePOS(String codePOS) {
+            this.codePOS = codePOS;
+            return this;
+        }
+
         public POSBuilder headOfPOS(User headOfPOS) {
             this.headOfPOS = headOfPOS;
             return this;
         }
 
-        public POSBuilder region(Region region) {
-            this.region = region;
+        @JsonIgnoreProperties({"posInSector"})
+        public POSBuilder sector(Sector sector) {
+            this.sector = sector;
+            return this;
+        }
+
+        public POSBuilder users(Set<User> users) {
+            this.users = users;
             return this;
         }
 
@@ -151,11 +188,11 @@ public class POS {
         }
 
         public POS build() {
-            return new POS(this.id, this.name, this.headOfPOS, this.region, this.createdAt, this.updatedAt);
+            return new POS(this.id, this.name, this.codePOS, this.headOfPOS, this.sector, this.users, this.createdAt, this.updatedAt);
         }
 
         public String toString() {
-            return "POS.POSBuilder(id=" + this.id + ", name=" + this.name + ", headOfPOS=" + this.headOfPOS.getId() + ", region=" + this.region + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
+            return "POS.POSBuilder(id=" + this.id + ", name=" + this.name + ", codePOS=" + this.codePOS + ", headOfPOS=" + this.headOfPOS + ", sector=" + this.sector + ", users=" + this.users + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
         }
     }
 }

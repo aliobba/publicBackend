@@ -15,17 +15,8 @@ import java.util.Optional;
 public interface RegionRepository extends JpaRepository<Region, Integer> {
     Optional<Region> findByName(String name);
     boolean existsByName(String name);
-
-    //Optional<Region> findByManagerId(Integer headOfRegionId);
-
-    List<Region> findByZoneId(Integer zoneId);
+    //Optional<Region> findByManagerId(Integer headOfRegionId);;
     boolean existsByHeadOfRegionId(Integer userId);
     //List<Region> findByHeadOfRegionIsNull();
-    // Fetch all users in a region
-    /*@Query("""
-        SELECT DISTINCT u FROM User u
-        LEFT JOIN u.region r
-        WHERE r.id = :regionId
-    """)
-    List<User> findAllUsersInRegion(@Param("regionId") Integer regionId);*/
+
 }

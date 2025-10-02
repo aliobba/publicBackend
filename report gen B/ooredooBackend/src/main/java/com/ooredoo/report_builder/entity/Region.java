@@ -1,6 +1,5 @@
 package com.ooredoo.report_builder.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ooredoo.report_builder.user.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -26,6 +25,9 @@ public class Region {
     @JoinColumn(name = "id_head_of_region")
     private User headOfRegion;
 
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Zone> zones = new HashSet<>();
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -34,24 +36,13 @@ public class Region {
     private LocalDateTime updatedAt;
 
 
-    // POS inside this region
-    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<POS> posInRegion = new HashSet<>();
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id")
-    @JsonIgnoreProperties({"regions"})
-    private Zone zone;
-
-    public Region(Integer id, String name, User headOfRegion, LocalDateTime createdAt, LocalDateTime updatedAt, Set<POS> posInRegion, Zone zone) {
+    public Region(Integer id, String name, User headOfRegion, Set<Zone> zones, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.headOfRegion = headOfRegion;
+        this.zones = zones;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.posInRegion = posInRegion;
-        this.zone = zone;
     }
 
     public Region() {
@@ -73,20 +64,16 @@ public class Region {
         return this.headOfRegion;
     }
 
+    public Set<Zone> getZones() {
+        return this.zones;
+    }
+
     public LocalDateTime getCreatedAt() {
         return this.createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
         return this.updatedAt;
-    }
-
-    public Set<POS> getPosInRegion() {
-        return this.posInRegion;
-    }
-
-    public Zone getZone() {
-        return this.zone;
     }
 
     public void setId(Integer id) {
@@ -101,6 +88,10 @@ public class Region {
         this.headOfRegion = headOfRegion;
     }
 
+    public void setZones(Set<Zone> zones) {
+        this.zones = zones;
+    }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -109,23 +100,13 @@ public class Region {
         this.updatedAt = updatedAt;
     }
 
-    public void setPosInRegion(Set<POS> posInRegion) {
-        this.posInRegion = posInRegion;
-    }
-
-    @JsonIgnoreProperties({"regions"})
-    public void setZone(Zone zone) {
-        this.zone = zone;
-    }
-
     public static class RegionBuilder {
         private Integer id;
         private String name;
         private User headOfRegion;
+        private Set<Zone> zones;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private Set<POS> posInRegion;
-        private Zone zone;
 
         RegionBuilder() {
         }
@@ -145,6 +126,11 @@ public class Region {
             return this;
         }
 
+        public RegionBuilder zones(Set<Zone> zones) {
+            this.zones = zones;
+            return this;
+        }
+
         public RegionBuilder createdAt(LocalDateTime createdAt) {
             this.createdAt = createdAt;
             return this;
@@ -155,22 +141,12 @@ public class Region {
             return this;
         }
 
-        public RegionBuilder posInRegion(Set<POS> posInRegion) {
-            this.posInRegion = posInRegion;
-            return this;
-        }
-
-        public RegionBuilder zone(Zone zone) {
-            this.zone = zone;
-            return this;
-        }
-
         public Region build() {
-            return new Region(this.id, this.name, this.headOfRegion, this.createdAt, this.updatedAt, this.posInRegion, this.zone);
+            return new Region(this.id, this.name, this.headOfRegion, this.zones, this.createdAt, this.updatedAt);
         }
 
         public String toString() {
-            return "Region.RegionBuilder(id=" + this.id + ", name=" + this.name + ", headOfRegion=" + this.headOfRegion.getId() + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", posInRegion=" + this.posInRegion + ", zone=" + this.zone.getId() + ")";
+            return "Region.RegionBuilder(id=" + this.id + ", name=" + this.name + ", headOfRegion=" + this.headOfRegion + ", zones=" + this.zones + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
         }
     }
 }

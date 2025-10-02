@@ -23,18 +23,17 @@ public class Zone {
     private String name;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sector_id")
-    //@JsonIgnore
-    @JsonIgnoreProperties({"zones"})
-    private Sector sector;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_head_of_zone")
     private User headOfZone;
 
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Region> regions = new HashSet<>();
+    private Set<Sector> sectors = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    @JsonIgnoreProperties({"zones"})
+    private Region region;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -43,12 +42,12 @@ public class Zone {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public Zone(Integer id, String name, Sector sector, User headOfZone, Set<Region> regions, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Zone(Integer id, String name, User headOfZone, Set<Sector> sectors, Region region, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
-        this.sector = sector;
         this.headOfZone = headOfZone;
-        this.regions = regions;
+        this.sectors = sectors;
+        this.region = region;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -68,16 +67,16 @@ public class Zone {
         return this.name;
     }
 
-    public Sector getSector() {
-        return this.sector;
-    }
-
     public User getHeadOfZone() {
         return this.headOfZone;
     }
 
-    public Set<Region> getRegions() {
-        return this.regions;
+    public Set<Sector> getSectors() {
+        return this.sectors;
+    }
+
+    public Region getRegion() {
+        return this.region;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -96,17 +95,17 @@ public class Zone {
         this.name = name;
     }
 
-    @JsonIgnoreProperties({"zones"})
-    public void setSector(Sector sector) {
-        this.sector = sector;
-    }
-
     public void setHeadOfZone(User headOfZone) {
         this.headOfZone = headOfZone;
     }
 
-    public void setRegions(Set<Region> regions) {
-        this.regions = regions;
+    public void setSectors(Set<Sector> sectors) {
+        this.sectors = sectors;
+    }
+
+    @JsonIgnoreProperties({"zones"})
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
@@ -120,9 +119,9 @@ public class Zone {
     public static class ZoneBuilder {
         private Integer id;
         private String name;
-        private Sector sector;
         private User headOfZone;
-        private Set<Region> regions;
+        private Set<Sector> sectors;
+        private Region region;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -139,18 +138,19 @@ public class Zone {
             return this;
         }
 
-        public ZoneBuilder sector(Sector sector) {
-            this.sector = sector;
-            return this;
-        }
-
         public ZoneBuilder headOfZone(User headOfZone) {
             this.headOfZone = headOfZone;
             return this;
         }
 
-        public ZoneBuilder regions(Set<Region> regions) {
-            this.regions = regions;
+        public ZoneBuilder sectors(Set<Sector> sectors) {
+            this.sectors = sectors;
+            return this;
+        }
+
+        @JsonIgnoreProperties({"zones"})
+        public ZoneBuilder region(Region region) {
+            this.region = region;
             return this;
         }
 
@@ -165,11 +165,11 @@ public class Zone {
         }
 
         public Zone build() {
-            return new Zone(this.id, this.name, this.sector, this.headOfZone, this.regions, this.createdAt, this.updatedAt);
+            return new Zone(this.id, this.name, this.headOfZone, this.sectors, this.region, this.createdAt, this.updatedAt);
         }
 
         public String toString() {
-            return "Zone.ZoneBuilder(id=" + this.id + ", name=" + this.name + ", sector=" + this.sector.getId() + ", headOfZone=" + this.headOfZone.getId() + ", regions=" + this.regions + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
+            return "Zone.ZoneBuilder(id=" + this.id + ", name=" + this.name + ", headOfZone=" + this.headOfZone + ", sectors=" + this.sectors + ", region=" + this.region + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ")";
         }
     }
 }

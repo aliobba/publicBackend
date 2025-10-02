@@ -35,6 +35,8 @@ public class User implements UserDetails, Principal {
     private String firstname;
     private String lastname;
     private LocalDate dateOfBirth;
+
+
     private String password;
     @Column(unique = true)
     private String email;
@@ -44,7 +46,7 @@ public class User implements UserDetails, Principal {
     private String pinHash;
     private boolean enabled;
     private boolean accountLocked;
-
+    private String code_POS;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 
@@ -86,7 +88,16 @@ public class User implements UserDetails, Principal {
     @Column(name = "user_type")
     private UserType userType;
 
-    public User(Integer id, String firstname, String lastname, LocalDate dateOfBirth, String password, String email, String pinHash, boolean enabled, boolean accountLocked, List<Role> roles, Set<Form> createdForms, List<FormSubmission> submissions, LocalDateTime createdAt, LocalDateTime updatedAt, Enterprise enterprise, POS pos, Set<Form> assignedForms, UserType userType) {
+
+    public User() {
+    }
+
+    public User(Integer id, String firstname, String lastname,
+                LocalDate dateOfBirth, String password,
+                String email, String pinHash, boolean enabled,
+                boolean accountLocked, String code_POS, List<Role>
+                        roles, Set<Form> createdForms, List<FormSubmission> submissions,
+                LocalDateTime createdAt, LocalDateTime updatedAt, Enterprise enterprise, POS pos, Set<Form> assignedForms, UserType userType) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -96,6 +107,7 @@ public class User implements UserDetails, Principal {
         this.pinHash = pinHash;
         this.enabled = enabled;
         this.accountLocked = accountLocked;
+        this.code_POS = code_POS;
         this.roles = roles;
         this.createdForms = createdForms;
         this.submissions = submissions;
@@ -105,9 +117,6 @@ public class User implements UserDetails, Principal {
         this.pos = pos;
         this.assignedForms = assignedForms;
         this.userType = userType;
-    }
-
-    public User() {
     }
 
     public static UserBuilder builder() {
@@ -233,6 +242,14 @@ public class User implements UserDetails, Principal {
         return this.userType;
     }
 
+    public String getcode_POS() {
+        return code_POS;
+    }
+
+    public void setcode_POS(String code_POS) {
+        this.code_POS = code_POS;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -318,6 +335,7 @@ public class User implements UserDetails, Principal {
         private String pinHash;
         private boolean enabled;
         private boolean accountLocked;
+        private String code_POS;
         private List<Role> roles;
         private Set<Form> createdForms;
         private List<FormSubmission> submissions;
@@ -376,6 +394,11 @@ public class User implements UserDetails, Principal {
             return this;
         }
 
+        public UserBuilder code_POS(String code_POS) {
+            this.code_POS = code_POS;
+            return this;
+        }
+
         /*public UserBuilder roles(List<Role> roles) {
             this.roles = roles;
             return this;
@@ -403,6 +426,7 @@ public class User implements UserDetails, Principal {
             return this;
         }
 
+        @JsonIgnoreProperties({"users", "manager"})
         public UserBuilder enterprise(Enterprise enterprise) {
             this.enterprise = enterprise;
             return this;
@@ -414,6 +438,7 @@ public class User implements UserDetails, Principal {
             return this;
         }
 
+        @JsonIgnore
         public UserBuilder assignedForms(Set<Form> assignedForms) {
             this.assignedForms = assignedForms;
             return this;
@@ -425,11 +450,11 @@ public class User implements UserDetails, Principal {
         }
 
         public User build() {
-            return new User(this.id, this.firstname, this.lastname, this.dateOfBirth, this.password, this.email, this.pinHash, this.enabled, this.accountLocked, this.roles, this.createdForms, this.submissions, this.createdAt, this.updatedAt, this.enterprise, this.pos, this.assignedForms, this.userType);
+            return new User(this.id, this.firstname, this.lastname, this.dateOfBirth, this.password, this.email, this.pinHash, this.enabled, this.accountLocked, this.code_POS, this.roles, this.createdForms, this.submissions, this.createdAt, this.updatedAt, this.enterprise, this.pos, this.assignedForms, this.userType);
         }
 
         public String toString() {
-            return "User.UserBuilder(id=" + this.id + ", firstname=" + this.firstname + ", lastname=" + this.lastname + ", dateOfBirth=" + this.dateOfBirth + ", password=" + this.password + ", email=" + this.email + ", pinHash=" + this.pinHash + ", enabled=" + this.enabled + ", accountLocked=" + this.accountLocked + ", createdForms=" + this.createdForms + ", submissions=" + this.submissions + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", enterprise=" + this.enterprise + ", pos=" + this.pos + ", assignedForms=" + this.assignedForms + ", userType=" + this.userType + ")";
+            return "User.UserBuilder(id=" + this.id + ", firstname=" + this.firstname + ", lastname=" + this.lastname + ", dateOfBirth=" + this.dateOfBirth + ", password=" + this.password + ", email=" + this.email + ", pinHash=" + this.pinHash + ", enabled=" + this.enabled + ", accountLocked=" + this.accountLocked + ", code_POS=" + this.code_POS + ", createdForms=" + this.createdForms + ", submissions=" + this.submissions + ", createdAt=" + this.createdAt + ", updatedAt=" + this.updatedAt + ", enterprise=" + this.enterprise + ", pos=" + this.pos + ", assignedForms=" + this.assignedForms + ", userType=" + this.userType + ")";
         }
     }
 }

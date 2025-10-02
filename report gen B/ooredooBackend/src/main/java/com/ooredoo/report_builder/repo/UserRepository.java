@@ -18,9 +18,9 @@ public interface UserRepository extends JpaRepository <User, Integer> {
 
     // Find users available to be heads (not already assigned as heads)
     @Query("SELECT u FROM User u WHERE u.userType = :userType AND u.id NOT IN " +
-            "(SELECT s.headOfSector.id FROM Sector s WHERE s.headOfSector IS NOT NULL) AND " +
+            "(SELECT r.headOfRegion.id FROM Region r WHERE r.headOfRegion IS NOT NULL) AND " +
             "u.id NOT IN (SELECT z.headOfZone.id FROM Zone z WHERE z.headOfZone IS NOT NULL) AND " +
-            "u.id NOT IN (SELECT r.headOfRegion.id FROM Region r WHERE r.headOfRegion IS NOT NULL) AND " +
+            "u.id NOT IN (SELECT s.headOfSector.id FROM Sector s WHERE s.headOfSector IS NOT NULL) AND " +
             "u.id NOT IN (SELECT p.headOfPOS.id FROM POS p WHERE p.headOfPOS IS NOT NULL)")
     List<User> findAvailableHeads(@Param("userType") UserType userType);
 
@@ -50,11 +50,11 @@ public interface UserRepository extends JpaRepository <User, Integer> {
     @Query("""
     SELECT DISTINCT u FROM User u
     JOIN u.pos p
-    JOIN p.region r
-    JOIN r.zone z
-    JOIN z.sector s
-    WHERE s.id = :sectorId
+    JOIN p.sector s
+    JOIN s.zone z
+    JOIN z.region r
+    WHERE r.id = :regionId
 """)
-    List<User> findAllUsersInSectorFull(@Param("sectorId") Integer sectorId);
+    List<User> findAllUsersInRegionFull(@Param("regionId") Integer regionId);
 
 }

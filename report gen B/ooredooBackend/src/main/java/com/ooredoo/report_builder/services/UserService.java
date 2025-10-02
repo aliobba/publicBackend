@@ -1,9 +1,6 @@
 package com.ooredoo.report_builder.services;
 
-import com.ooredoo.report_builder.entity.Enterprise;
-import com.ooredoo.report_builder.entity.Region;
-import com.ooredoo.report_builder.entity.Sector;
-import com.ooredoo.report_builder.entity.Zone;
+import com.ooredoo.report_builder.entity.*;
 import com.ooredoo.report_builder.enums.UserType;
 import com.ooredoo.report_builder.handler.ResourceNotFoundException;
 import com.ooredoo.report_builder.repo.*;
@@ -73,8 +70,8 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
-    public List<User> findAllFromSector(Integer sectorId) {
-        return userRepository.findAllUsersInSectorFull(sectorId);
+    public List<User> findAllFromRegion(Integer regionId) {
+        return userRepository.findAllUsersInRegionFull(regionId);
     }
 
     public Optional<User> findById(Integer id) {
@@ -114,8 +111,14 @@ public class UserService {
                 .dateOfBirth(user.getDateOfBirth())
                 .userType(user.getUserType() == null || user.getUserType().toString().isEmpty()
                         ? UserType.SIMPLE_USER
-                        : user.getUserType() )
+                        : user.getUserType())
                 .build();
+        POS pos = posRepository.findByCodePOS(user.getcode_POS())
+                .orElseThrow(() -> new ResourceNotFoundException("pos not found"));
+        if(newUser.getUserType().getValue().contains("POS") && user.getcode_POS().equals(pos.getCodePOS())){
+           newUser.setcode_POS(user.getcode_POS());
+           newUser.setPos(pos);
+        }
         userRepository.save(newUser);
         return newUser;
     }
