@@ -29,5 +29,7 @@ springdoc:
   default-produces-media-type: application/json
 
 server:
+  address: 0.0.0.0         # obligatoire pour Render (écoute sur toutes les interfaces)
+  port: ${PORT:8080}       # Render injecte automatiquement PORT=10000
   servlet:
     context-path: /api/v1/
