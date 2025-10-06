@@ -75,10 +75,10 @@ public class AuthenticationService {
         //sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(User user) throws MessagingException {
+    private void sendValidationEmail(User user) throws MessagingException, java.io.IOException {
         var newToken = generateAndSaveActivationToken(user);
 
-        emailService.sendEmail(
+        emailService.sendWithSendGrid(
                 user.getEmail(),
                 user.fullName(),
                 EmailTemplateName.ACTIVATE_ACCOUNT,
@@ -114,7 +114,7 @@ public class AuthenticationService {
         return codeBuilder.toString();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) throws MessagingException {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws MessagingException, java.io.IOException {
 
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -131,7 +131,7 @@ public class AuthenticationService {
                 .token(jwtToken).build();
     }
     @Transactional
-    public void activateAccount(String token) throws MessagingException {
+    public void activateAccount(String token) throws MessagingException, java.io.IOException {
 
         Token savedToken = tokenRepository.findByToken(token)
                 //NEED TO HANDLE THE EXCEPTION

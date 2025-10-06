@@ -5,6 +5,7 @@ import com.ooredoo.report_builder.services.authService.services.AuthenticationSe
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,14 +32,14 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate (
-            @RequestBody @Valid AuthenticationRequest request ) throws MessagingException {
+            @RequestBody @Valid AuthenticationRequest request ) throws MessagingException, IOException {
         return ResponseEntity.ok(authService.authenticate(request));
 
     }
 
     @GetMapping("/activation-account")
     public void confirm (
-            @RequestParam String token) throws MessagingException {
+            @RequestParam String token) throws MessagingException, IOException {
 
         authService.activateAccount(token);
     }
