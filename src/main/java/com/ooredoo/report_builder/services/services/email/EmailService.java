@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -54,24 +53,39 @@ public class EmailService {
                 templateName = emailTemplate.getName();
             }
 
-            Email from = new Email(System.getenv("MAIL_USERNAME"));
+            String apiKey = System.getenv("SENDGRID_API_KEY");
+
+            if (apiKey == null || apiKey.isBlank()) {
+                log.error("SENDGRID_API_KEY is missing");
+                return;
+            }
+            if (!apiKey.startsWith("SG.")) {
+                log.warn("SENDGRID_API_KEY format looks unusual");
+            }
+
+            Email from = new Email(System.getenv("MAIL_FROM"));
             Email toEmail = new Email(to);
 
             Map<String, Object> properties = new HashMap<>();
             properties.put("username", username);
             properties.put("confirmationUrl", confirmationUrl);
             properties.put("activationCode", activationCode);
+
             Context context = new Context();
             context.setVariables(properties);
+
             String template = templateEnngine.process(templateName, context);
+
             Mail mail = new Mail(from, subject, toEmail, new Content("text/html", template));
 
-            SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+            SendGrid sg = new SendGrid(apiKey);
             sg.setDataResidency("eu");
+
             Request request = new Request();
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
+
             Response resp = sg.api(request);
             log.info("sendgrid.response status={}, bodySize={}", resp.getStatusCode(), resp.getBody().length());
         } catch (Exception e) {
