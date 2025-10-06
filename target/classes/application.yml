@@ -35,7 +35,8 @@ spring:
           auth: ${MAIL_SMTP_AUTH:true}
           starttls:
             enable: ${MAIL_STARTTLS_ENABLE:true}
-          trust: ${MAIL_SMTP_TRUST:*}
+          ssl:
+            enable: false # si true, utiliser le port 465
         connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:10000}
         timeout: ${MAIL_TIMEOUT:4000}
         writetimeout: ${MAIL_WRITE_TIMEOUT:10000}
