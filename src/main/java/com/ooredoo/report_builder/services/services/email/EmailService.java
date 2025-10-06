@@ -37,62 +37,71 @@ public class EmailService {
         this.templateEnngine = templateEnngine;
     }
 
-    public void sendWithSendGrid(String to,
+    public void sendWithSendGrid(
+            String to,
             String username,
             EmailTemplateName emailTemplate,
             String confirmationUrl,
             String activationCode,
             String subject) throws IOException {
         try {
-            String templateName;
             log.info("Preparing email to send");
 
-            if (emailTemplate != null)
-                templateName = "activate_account";
-            else {
-                templateName = emailTemplate.getName();
-            }
+            String templateName = (emailTemplate != null) ? "activate_account" : emailTemplate.getName();
 
-            String apiKey = System.getenv("SENDGRID_API_KEY");
+            // --- Clé & expéditeur depuis env (trim pour éviter espaces/copier-coller) ---
+            String rawKey = System.getenv("SENDGRID_API_KEY");
+            String apiKey = (rawKey == null) ? "" : rawKey.trim();
+            String fromAddr = (System.getenv("MAIL_FROM") == null) ? "" : System.getenv("MAIL_FROM").trim();
+            String region = (System.getenv("SENDGRID_REGION") == null) ? "us"
+                    : System.getenv("SENDGRID_REGION").trim().toLowerCase();
 
-            if (apiKey == null || apiKey.isBlank()) {
-                log.error("SENDGRID_API_KEY is missing");
+            if (apiKey.isEmpty() || !apiKey.startsWith("SG.")) {
+                log.error("SENDGRID_API_KEY missing or bad format");
                 return;
             }
-            if (!apiKey.startsWith("SG.")) {
-                log.warn("SENDGRID_API_KEY format looks unusual");
+            if (fromAddr.isEmpty()) {
+                log.error("MAIL_FROM missing");
+                return;
             }
+            log.info("sendgrid.init keyLen={}, region={}, fromDomain={}",
+                    apiKey.length(), region,
+                    fromAddr.contains("@") ? fromAddr.substring(fromAddr.indexOf('@') + 1) : "n/a");
 
-            Email from = new Email(System.getenv("MAIL_FROM"));
-            Email toEmail = new Email(to);
-
+            // --- Construire le HTML ---
             Map<String, Object> properties = new HashMap<>();
             properties.put("username", username);
             properties.put("confirmationUrl", confirmationUrl);
             properties.put("activationCode", activationCode);
 
-            Context context = new Context();
-            context.setVariables(properties);
+            Context ctx = new Context();
+            ctx.setVariables(properties);
+            String html = templateEnngine.process(templateName, ctx);
 
-            String template = templateEnngine.process(templateName, context);
-
-            Mail mail = new Mail(from, subject, toEmail, new Content("text/html", template));
-
+            // --- Client SendGrid + région correcte ---
             SendGrid sg = new SendGrid(apiKey);
-            sg.setDataResidency("eu");
+            // N'utilise PAS setDataResidency si tu n'es pas certain d'être en EU.
+            // Préfère setHost selon l'env :
+            if ("eu".equals(region)) {
+                sg.setHost("https://api.eu.sendgrid.com"); // compte/clé EU uniquement
+            } else {
+                sg.setHost("https://api.sendgrid.com"); // défaut US
+            }
 
-            Request request = new Request();
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
+            // --- Requête ---
+            Mail mail = new Mail(new Email(fromAddr), subject, new Email(to), new Content("text/html", html));
+            Request req = new Request();
+            req.setMethod(Method.POST);
+            req.setEndpoint("mail/send");
+            req.setBody(mail.build());
 
-            Response resp = sg.api(request);
-            log.info("sendgrid.response status={}, bodySize={}", resp.getStatusCode(), resp.getBody().length());
+            Response resp = sg.api(req);
+            log.info("sendgrid.response status={}, body={}", resp.getStatusCode(), resp.getBody());
+
         } catch (Exception e) {
             log.error("Email send failed", e);
             throw e;
         }
-
     }
 
     @Async
