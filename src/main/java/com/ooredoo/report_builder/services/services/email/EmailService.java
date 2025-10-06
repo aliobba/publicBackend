@@ -83,9 +83,9 @@ public class EmailService {
             // N'utilise PAS setDataResidency si tu n'es pas certain d'être en EU.
             // Préfère setHost selon l'env :
             if ("eu".equals(region)) {
-                sg.setHost("https://api.eu.sendgrid.com"); // compte/clé EU uniquement
+                sg.setHost("api.eu.sendgrid.com");
             } else {
-                sg.setHost("https://api.sendgrid.com"); // défaut US
+                sg.setHost("api.sendgrid.com");
             }
 
             // --- Requête ---
