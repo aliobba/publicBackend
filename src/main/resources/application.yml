@@ -25,7 +25,7 @@ spring:
 
   mail:
     host: ${MAIL_HOST}                  # ex: smtp.sendgrid.net / smtp.gmail.com / Mailjet…
-    port: ${MAIL_PORT:587}
+    port: ${MAIL_PORT:465}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
@@ -36,7 +36,7 @@ spring:
           starttls:
             enable: ${MAIL_STARTTLS_ENABLE:true}
           ssl:
-            enable: false # si true, utiliser le port 465
+            enable: ${MAIL_SSL_ENABLE:true}         # si true, utiliser le port 465
         connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:10000}
         timeout: ${MAIL_TIMEOUT:4000}
         writetimeout: ${MAIL_WRITE_TIMEOUT:10000}
