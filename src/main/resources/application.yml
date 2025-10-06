@@ -24,22 +24,23 @@ spring:
       max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:10MB}
 
   mail:
-    host: ${MAIL_HOST}                  # ex: smtp.sendgrid.net / smtp.gmail.com / Mailjet…
-    port: ${MAIL_PORT:465}
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
       mail:
-        debug: ${MAIL_DEBUG:false}
         smtp:
           auth: ${MAIL_SMTP_AUTH:true}
           starttls:
             enable: ${MAIL_STARTTLS_ENABLE:true}
+            required: true
           ssl:
-            enable: ${MAIL_SSL_ENABLE:true}         # si true, utiliser le port 465
-        connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:10000}
-        timeout: ${MAIL_TIMEOUT:4000}
-        writetimeout: ${MAIL_WRITE_TIMEOUT:10000}
+            enable: ${MAIL_SSL_ENABLE:true}         # si true, utiliser le port 465 # IMPORTANT: désactivé en 587
+        debug: ${MAIL_DEBUG:false}
+        connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:5000}
+        timeout: ${MAIL_TIMEOUT:5000}
+        writetimeout: ${MAIL_WRITE_TIMEOUT:5000}
 
 server:
   address: 0.0.0.0
