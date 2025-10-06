@@ -15,8 +15,13 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE_MIXED;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
 @Service
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEnngine;
 
@@ -32,36 +37,49 @@ public class EmailService {
             EmailTemplateName emailTemplate,
             String confirmationUrl,
             String activationCode,
-            String subject
-    ) throws MessagingException {
+            String subject) throws MessagingException {
         String templateName;
-        if (emailTemplate != null)
-            templateName = "activate_account";
-        else {
-            templateName = emailTemplate.getName();
+
+        try {
+
+            log.info("Preparing email to send");
+
+            if (emailTemplate != null)
+                templateName = "activate_account";
+            else {
+                templateName = emailTemplate.getName();
+            }
+
+            log.debug("Email details: to={}, subject={}, template={}, confirmationUrl={}",
+                    to, subject, templateName, confirmationUrl);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    MULTIPART_MODE_MIXED,
+                    UTF_8.name());
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("username", username);
+            properties.put("confirmationUrl", confirmationUrl);
+            properties.put("activationCode", activationCode);
+
+            Context context = new Context();
+            context.setVariables(properties);
+            helper.setFrom("iheb.ayari@esprit.tn");
+            helper.setTo(to);
+            helper.setSubject(subject);
+
+            String template = templateEnngine.process(templateName, context);
+
+            helper.setText(template, true);
+
+            mailSender.send(message);
+            log.info("Email sent");
+            
+        } catch (MessagingException ex) {
+            log.error("Email send failed", ex);
+            throw ex;
         }
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(
-                message,
-                MULTIPART_MODE_MIXED,
-                UTF_8.name()
-        );
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("username", username);
-        properties.put("confirmationUrl", confirmationUrl);
-        properties.put("activationCode", activationCode);
-
-        Context context = new Context();
-        context.setVariables(properties);
-        helper.setFrom("iheb.ayari@esprit.tn");
-        helper.setTo(to);
-        helper.setSubject(subject);
-
-        String template = templateEnngine.process(templateName, context);
-
-        helper.setText(template, true);
-
-        mailSender.send(message);
 
     }
 
