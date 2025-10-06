@@ -57,7 +57,6 @@ public class EmailService {
             Email from = new Email(System.getenv("MAIL_USERNAME"));
             Email toEmail = new Email(to);
 
-            
             Map<String, Object> properties = new HashMap<>();
             properties.put("username", username);
             properties.put("confirmationUrl", confirmationUrl);
@@ -66,8 +65,9 @@ public class EmailService {
             context.setVariables(properties);
             String template = templateEnngine.process(templateName, context);
             Mail mail = new Mail(from, subject, toEmail, new Content("text/html", template));
-            
+
             SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+            sg.setDataResidency("eu");
             Request request = new Request();
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
