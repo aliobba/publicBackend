@@ -1,0 +1,40 @@
+<configuration scan="true">
+  <!-- Console JSON -->
+  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <timestamp/>
+        <version/>
+        <pattern>
+          <pattern>
+            {
+              "level":"%level",
+              "logger":"%logger{36}",
+              "thread":"%thread",
+              "message":"%msg",
+              "exception":"%exception{5}",
+              "traceId":"%X{traceId}",
+              "spanId":"%X{spanId}",
+              "userId":"%X{userId}",
+              "emailId":"%X{emailId}",
+              "env":"${SPRING_PROFILES_ACTIVE:-dev}",
+              "app":"report-builder"
+            }
+          </pattern>
+        </pattern>
+        <mdc/> <!-- capture le reste du MDC -->
+        <arguments/> <!-- args des logs -->
+      </providers>
+    </encoder>
+  </appender>
+
+  <!-- Niveaux utiles pour diagnostiquer le mail -->
+  <logger name="org.springframework.mail" level="DEBUG"/>
+  <logger name="com.sun.mail" level="DEBUG"/>        <!-- Jakarta Mail -->
+  <logger name="jakarta.mail" level="DEBUG"/>        <!-- au cas où -->
+  <logger name="org.apache.commons.mail" level="DEBUG"/>
+
+  <root level="INFO">
+    <appender-ref ref="JSON"/>
+  </root>
+</configuration>

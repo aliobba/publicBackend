@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+        .otp-code {
+            font-size: 36px;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 2px dashed #dee2e6;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        .instructions {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>OTP Verification</h1>
+    </div>
+    
+    <p class="greeting" th:text="'Hello ' + ${username} + ','"></p>
+    
+    <p>You have successfully logged in to OOREDOO Report Builder. For security purposes, please use the following OTP to complete your authentication:</p>
+    
+    <div class="instructions">
+        <h3>🔐 Security Verification</h3>
+        <p>Enter this OTP code in the application to complete your login process.</p>
+    </div>
+    
+    <div class="otp-code">
+        <span th:text="${activationCode}"></span>
+    </div>
+    
+    <p><strong>Important:</strong> This OTP code will expire in 10 minutes for security reasons. If you don't use it in time, please log in again to receive a new code.</p>
+    
+    <div class="footer">
+        <p>If you didn't attempt to log in or have any security concerns, please contact your system administrator immediately.</p>
+        <p>This is an automated security message from OOREDOO Report Builder System.</p>
+    </div>
+</div>
+</body>
+</html>

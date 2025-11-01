@@ -1,0 +1,77 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}        # ex: jdbc:postgresql://<host>:<port>/<db>?sslmode=require
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: ${SPRING_JPA_FORMAT_SQL:true}
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:10MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:10MB}
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_STARTTLS_ENABLE:true}
+            required: true
+          ssl:
+            enable: ${MAIL_SSL_ENABLE:true}         # si true, utiliser le port 465 # IMPORTANT: désactivé en 587
+        debug: ${MAIL_DEBUG:false}
+        connectiontimeout: ${MAIL_CONNECTION_TIMEOUT:5000}
+        timeout: ${MAIL_TIMEOUT:5000}
+        writetimeout: ${MAIL_WRITE_TIMEOUT:5000}
+
+springdoc:
+  default-produces-media-type: application/json
+  packages-to-scan: com.ooredoo.report_builder.controller
+  paths-to-match: /auth/**,/**   # s’assure que /auth/* sort bien dans le catalogue
+
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}                     # Render fournit PORT
+  servlet:
+    context-path: /api/v1
+  forward-headers-strategy: framework    # respecte X-Forwarded-Proto/Host (proxy)
+
+logging:
+  structured:
+    format:
+      console: logstash
+      file: logstash
+
+
+# tes paramètres applicatifs
+app:
+  file:
+    upload-dir: ${FILE_UPLOAD_DIR:./uploads}
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:change-me-in-prod}
+      expiration: ${JWT_EXPIRATION:86400000}
+  mailing:
+    frontend:
+      base-url: ${FRONTEND_BASE_URL}         # ex: https://ton-front.onrender.com
+      activation-path: ${FRONTEND_ACTIVATION_PATH:/activation-account}
+  mail:
+    from: ${MAIL_FROM:no-reply@example.com}
