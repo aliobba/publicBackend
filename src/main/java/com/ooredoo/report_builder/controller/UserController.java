@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -183,7 +184,7 @@ public class UserController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<MessageResponse> activateAccount(@RequestParam("token") String token) throws MessagingException {
+    public ResponseEntity<MessageResponse> activateAccount(@RequestParam("token") String token) throws MessagingException, IOException {
         userService.activateAccount(token);
         return ResponseEntity.ok(new MessageResponse("OTP SEND successfully"));
     }
