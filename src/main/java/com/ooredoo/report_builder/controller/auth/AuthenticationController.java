@@ -5,6 +5,9 @@ import com.ooredoo.report_builder.services.authService.services.AuthenticationSe
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,21 +28,21 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<?> registerUser(
             @RequestBody @Valid RegistrationRequest request
-    ) throws MessagingException {
+    ) throws MessagingException, IOException {
         authService.register(request);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate (
-            @RequestBody @Valid AuthenticationRequest request ) throws MessagingException {
+            @RequestBody @Valid AuthenticationRequest request ) throws MessagingException, IOException {
         return ResponseEntity.ok(authService.authenticate(request));
 
     }
 
     @GetMapping("/activation-account")
     public void confirm (
-            @RequestParam String token) throws MessagingException {
+            @RequestParam String token) throws MessagingException, IOException {
 
         authService.activateAccount(token);
     }
@@ -55,7 +58,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/resend-activation")
-    public ResponseEntity<?> resendActivationEmail(@RequestBody @Valid ResendActivationRequest request) throws MessagingException {
+    public ResponseEntity<?> resendActivationEmail(@RequestBody @Valid ResendActivationRequest request) throws MessagingException, IOException {
         authService.resendActivationEmail(request.getEmail());
         return ResponseEntity.ok().build();
     }
@@ -71,7 +74,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/resend-otp")
-    public ResponseEntity<?> resendOtp(@RequestBody @Valid ResendOtpRequest request) throws MessagingException {
+    public ResponseEntity<?> resendOtp(@RequestBody @Valid ResendOtpRequest request) throws MessagingException, IOException {
         authService.resendOtp(request.getEmail());
         return ResponseEntity.ok().build();
     }
